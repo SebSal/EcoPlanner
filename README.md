@@ -8,6 +8,10 @@ many blocks of each type you'll need — organised around Eco's **5×5 claim** g
 > Everything runs client-side. Your work autosaves to your browser and can be
 > exported to a JSON file to back up or share.
 
+> ⚠️ **Heads up:** This whole project is "vibe coded" — generated iteratively with
+> an AI assistant and **not formally reviewed**. Use it at your own risk; expect
+> rough edges and don't rely on it for anything critical.
+
 ## Features
 
 - **2D layer editor** — top-down grid for the current layer. Click to place,
