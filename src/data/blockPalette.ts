@@ -22,3 +22,7 @@ export const DEFAULT_BLOCK_COLOR = '#e05fd0'; // fallback for unknown blockTypeI
 export function getBlockColor(blockTypeId: string): string {
   return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.color ?? DEFAULT_BLOCK_COLOR;
 }
+
+export function getBlockName(blockTypeId: string): string {
+  return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.name ?? blockTypeId;
+}

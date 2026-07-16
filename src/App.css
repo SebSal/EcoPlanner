@@ -143,6 +143,40 @@
   border-bottom: 2px solid var(--claim-line);
 }
 
+.block-counter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--panel-bg);
+  font-size: 13px;
+}
+
+.block-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.block-count-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+.block-count-total {
+  margin-left: auto;
+  color: var(--claim-line);
+}
+
+.block-counter-empty {
+  color: var(--claim-line);
+}
+
 .dialog-overlay {
   position: fixed;
   inset: 0;

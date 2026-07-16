@@ -85,8 +85,10 @@ export function LayerEditor() {
               background = getBlockColor(belowBlockId) + '40'; // ~25% alpha
             }
 
-            // Heavier borders on claim boundaries (every CLAIM_SIZE blocks).
-            const claimX = (x + 1) % CLAIM_SIZE === 0;
+            // Heavier borders on interior claim boundaries (every CLAIM_SIZE
+            // blocks). Skip boundaries that fall on the outer frame so the grid
+            // edge stays a thin line.
+            const claimX = (x + 1) % CLAIM_SIZE === 0 && x !== dimensions.width - 1;
             const claimZ = z % CLAIM_SIZE === 0 && z > 0;
             const className =
               'layer-editor-cell' +

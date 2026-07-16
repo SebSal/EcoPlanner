@@ -61,6 +61,14 @@ export function setCell(
   grid.cells[indexFromCoords(x, y, z, grid.dimensions)] = value;
 }
 
+export function countBlocksByType(grid: VoxelGrid): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const value of grid.cells) {
+    if (value) counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return counts;
+}
+
 export function gridToSparseBlocks(
   grid: VoxelGrid,
 ): { x: number; y: number; z: number; blockTypeId: string }[] {

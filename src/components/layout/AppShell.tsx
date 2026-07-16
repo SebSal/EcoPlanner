@@ -5,6 +5,7 @@ import { NewProjectDialog } from '../toolbar/NewProjectDialog';
 import { LayerEditor } from '../editor2d/LayerEditor';
 import { LayerSelector } from '../editor2d/LayerSelector';
 import { Scene } from '../viewer3d/Scene';
+import { BlockCounter } from './BlockCounter';
 
 export function AppShell() {
   const hasProject = useBuildStore((s) => s.hasProject);
@@ -22,6 +23,7 @@ export function AppShell() {
           <Scene />
         </div>
       </div>
+      <BlockCounter />
       <NewProjectDialog
         isOpen={dialogOpen || !hasProject}
         canCancel={hasProject}
