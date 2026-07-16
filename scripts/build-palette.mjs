@@ -64,9 +64,12 @@ const BLOCKS = [
   { id: 'asphalt_concrete', name: 'Asphalt Concrete', texture: true },
   // Both glass types are rendered with partial opacity in the 3D view (see
   // VoxelInstancedMesh) — `opacity` here just carries that value through to
-  // the generated palette.
-  { id: 'glass', name: 'Glass', texture: false, opacity: 0.5 },
-  { id: 'framed_glass', name: 'Framed Glass', texture: true, opacity: 0.7 },
+  // the generated palette. `color` is a fixed override: the source imagery
+  // (a studio-lit icon render for Glass, a mostly-steel-frame texture for
+  // Framed Glass) doesn't average out to a color that reads as "glass", so
+  // both are pinned to a blue tint instead of computed.
+  { id: 'glass', name: 'Glass', texture: false, opacity: 0.5, color: '#8fcce6' },
+  { id: 'framed_glass', name: 'Framed Glass', texture: true, opacity: 0.7, color: '#8fcce6' },
 ];
 
 function toHex(r, g, b) {
@@ -139,7 +142,7 @@ async function main() {
       colorSourceBuffer = textureOut;
     }
 
-    const color = await averageColor(colorSourceBuffer);
+    const color = block.color ?? (await averageColor(colorSourceBuffer));
 
     entries.push({
       id: block.id,
@@ -148,7 +151,9 @@ async function main() {
       texture: texturePath,
       opacity: block.opacity,
     });
-    console.log(`${block.id}: color=${color}${texturePath ? ` texture=${texturePath}` : ' (no texture)'}`);
+    console.log(
+      `${block.id}: color=${color}${block.color ? ' (fixed)' : ''}${texturePath ? ` texture=${texturePath}` : ' (no texture)'}`,
+    );
   }
 
   const lines = entries.map((e) => {

@@ -36,8 +36,8 @@ export const BLOCK_PALETTE: BlockType[] = [
   { id: 'composite_lumber_spruce', name: 'Composite Spruce Lumber', color: '#f3dba7', texture: '/textures/blocks/composite_lumber_spruce.png' },
   { id: 'reinforced_concrete', name: 'Reinforced Concrete', color: '#929592', texture: '/textures/blocks/reinforced_concrete.png' },
   { id: 'asphalt_concrete', name: 'Asphalt Concrete', color: '#5e5d5e', texture: '/textures/blocks/asphalt_concrete.png' },
-  { id: 'glass', name: 'Glass', color: '#a7937b', opacity: 0.5 },
-  { id: 'framed_glass', name: 'Framed Glass', color: '#dde4ec', texture: '/textures/blocks/framed_glass.png', opacity: 0.7 },
+  { id: 'glass', name: 'Glass', color: '#8fcce6', opacity: 0.5 },
+  { id: 'framed_glass', name: 'Framed Glass', color: '#8fcce6', texture: '/textures/blocks/framed_glass.png', opacity: 0.7 },
 ];
 
 export const DEFAULT_BLOCK_COLOR = '#e05fd0'; // fallback for unknown blockTypeId on import
