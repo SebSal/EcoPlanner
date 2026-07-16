@@ -1,7 +1,9 @@
 export interface BlockType {
   id: string;
   name: string;
-  color: string; // hex
+  color: string; // hex — used for the 2D grid and as a fallback when no texture
+  texture?: string; // optional URL to a tiling surface texture for the 3D cubes
+  icon?: string; // optional URL to an inventory icon for the palette swatch
 }
 
 // PLACEHOLDER data — not sourced from the real game, refine later with real ECO material colors.
@@ -25,4 +27,12 @@ export function getBlockColor(blockTypeId: string): string {
 
 export function getBlockName(blockTypeId: string): string {
   return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.name ?? blockTypeId;
+}
+
+export function getBlockTexture(blockTypeId: string): string | undefined {
+  return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.texture;
+}
+
+export function getBlockIcon(blockTypeId: string): string | undefined {
+  return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.icon;
 }
