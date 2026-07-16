@@ -46,6 +46,77 @@
   gap: 6px;
 }
 
+.shape-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 10px;
+  margin-left: 4px;
+  border-left: 1px solid var(--border);
+}
+
+.shape-selector-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 90px;
+}
+
+.shape-selector-caret {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.7;
+}
+
+/* Popover of every shape available for the current block — needs to scale
+   to ~48 rows (Ashlar) without turning into an unusable flat button row, so
+   it's a scrollable list instead (same "popover anchored under a trigger
+   button" pattern as .block-variants-popover). */
+.shape-selector-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 200px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.shape-selector-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 5px 8px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.shape-selector-row:hover {
+  border-color: var(--accent);
+}
+
+.shape-selector-row.selected {
+  background: var(--accent);
+  color: #fff;
+}
+
 .block-swatch {
   width: 26px;
   height: 26px;
@@ -178,9 +249,27 @@
 }
 
 .layer-editor-cell {
+  position: relative;
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   cursor: pointer;
+}
+
+/* Points toward the facing direction of a non-cube shape (e.g. Stairs) in
+   this cell; rotated in lockstep with the 3D rotation applied per-instance
+   in VoxelInstancedMesh. rotation: 0 points "up" (toward -Z / away from the
+   viewer in the default camera). */
+.shape-rotation-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid rgba(255, 255, 255, 0.85);
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
+  pointer-events: none;
 }
 
 /* Heavier lines on claim boundaries (every 5 blocks) on both ground axes. */

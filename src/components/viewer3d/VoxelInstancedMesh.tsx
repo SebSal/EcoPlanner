@@ -3,8 +3,15 @@ import * as THREE from 'three';
 import { useBuildStore } from '../../state/useBuildStore';
 import { coordsFromIndex } from '../../lib/voxelGrid';
 import { getBlockColor, getBlockOpacity, getBlockTexture } from '../../data/blockPalette';
+import { getShapeMeshId, type ShapeId } from '../../data/blockShapes';
+import { useShapeGeometry } from '../../lib/shapeGeometry';
 
-type Position = [number, number, number];
+interface Placement {
+  x: number;
+  y: number;
+  z: number;
+  rotation: 0 | 1 | 2 | 3;
+}
 
 // Textures are shared across every InstancedGroup instance of the same block
 // type (and across re-renders), so cache the loaded THREE.Texture by path.
@@ -27,10 +34,12 @@ function loadBlockTexture(texturePath: string): THREE.Texture {
 
 function InstancedGroup({
   blockTypeId,
-  positions,
+  shape,
+  placements,
 }: {
   blockTypeId: string;
-  positions: Position[];
+  shape: ShapeId;
+  placements: Placement[];
 }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const color = getBlockColor(blockTypeId);
@@ -38,22 +47,40 @@ function InstancedGroup({
   const opacity = getBlockOpacity(blockTypeId);
   const map = useMemo(() => (texturePath ? loadBlockTexture(texturePath) : null), [texturePath]);
 
+  const meshId = getShapeMeshId(blockTypeId, shape);
+  const stairsGeometry = useShapeGeometry(meshId);
+
   useLayoutEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
     const matrix = new THREE.Matrix4();
-    positions.forEach(([x, y, z], i) => {
-      matrix.setPosition(x, y, z);
+    placements.forEach(({ x, y, z, rotation }, i) => {
+      matrix.makeRotationY((rotation * Math.PI) / 2);
+      matrix.setPosition(x, y, z); // only touches the translation column, keeps the rotation set above
       mesh.setMatrixAt(i, matrix);
     });
     mesh.instanceMatrix.needsUpdate = true;
-  }, [positions]);
+  }, [placements]);
+
+  // Non-cube shapes load their geometry asynchronously (fetched OBJ, parsed,
+  // cached); skip rendering this group until it resolves. This only happens
+  // once per mesh id — cached after that.
+  if (shape !== 'cube' && !stairsGeometry) return null;
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, positions.length]}>
-      <boxGeometry args={[1, 1, 1]} />
+    <instancedMesh ref={meshRef} args={[undefined, undefined, placements.length]}>
+      {shape === 'cube' ? (
+        <boxGeometry args={[1, 1, 1]} />
+      ) : (
+        <primitive object={stairsGeometry!} attach="geometry" />
+      )}
       {/* When a texture is present, leave the material color white so the
-          texture isn't tinted by the (darker) average fallback color. */}
+          texture isn't tinted by the (darker) average fallback color.
+          Default FrontSide (backface culling) — verified visually against
+          all 7 extracted stair meshes (see the Stairs plan's winding-order
+          callout re: Unity left-handed vs Three.js right-handed conversion):
+          the raw OBJ winding already matches Three's CCW-front convention,
+          no mirroring/inside-out faces, so no DoubleSide workaround needed. */}
       <meshStandardMaterial
         color={map ? '#ffffff' : color}
         map={map}
@@ -69,27 +96,37 @@ export function VoxelInstancedMesh() {
   const dimensions = useBuildStore((s) => s.project.dimensions);
 
   const groups = useMemo(() => {
-    const byType = new Map<string, Position[]>();
+    const byKey = new Map<
+      string,
+      { blockTypeId: string; shape: ShapeId; placements: Placement[] }
+    >();
     for (let i = 0; i < grid.cells.length; i++) {
-      const blockTypeId = grid.cells[i];
-      if (!blockTypeId) continue;
+      const cell = grid.cells[i];
+      if (!cell) continue;
       const { x, y, z } = coordsFromIndex(i, dimensions);
-      const position: Position = [
-        x - dimensions.width / 2 + 0.5,
+      const position = {
+        x: x - dimensions.width / 2 + 0.5,
         y,
-        z - dimensions.depth / 2 + 0.5,
-      ];
-      const list = byType.get(blockTypeId) ?? [];
-      list.push(position);
-      byType.set(blockTypeId, list);
+        z: z - dimensions.depth / 2 + 0.5,
+        rotation: cell.rotation,
+      };
+      const key = `${cell.blockTypeId}|${cell.shape}`;
+      const group = byKey.get(key) ?? { blockTypeId: cell.blockTypeId, shape: cell.shape, placements: [] };
+      group.placements.push(position);
+      byKey.set(key, group);
     }
-    return Array.from(byType.entries());
+    return Array.from(byKey.entries());
   }, [grid, dimensions]);
 
   return (
     <>
-      {groups.map(([blockTypeId, positions]) => (
-        <InstancedGroup key={blockTypeId} blockTypeId={blockTypeId} positions={positions} />
+      {groups.map(([key, group]) => (
+        <InstancedGroup
+          key={key}
+          blockTypeId={group.blockTypeId}
+          shape={group.shape}
+          placements={group.placements}
+        />
       ))}
     </>
   );
