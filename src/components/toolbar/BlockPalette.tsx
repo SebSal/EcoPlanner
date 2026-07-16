@@ -68,13 +68,12 @@ export function BlockPalette() {
       );
     }
 
-    const { group, parent, variants } = item;
-    const members = [parent, ...variants];
+    const { group, members } = item;
     const activeMember = members.find((m) => m.id === selectedBlockId);
     const isActive = Boolean(activeMember);
     const open = expandedGroupId === group.id;
-    // The group face reflects the currently selected member when one is active.
-    const face = activeMember ?? parent;
+    // The group face reflects the selected member when one is active.
+    const face = activeMember ?? item.face;
 
     return (
       <div className="block-group" key={group.id}>
@@ -82,11 +81,13 @@ export function BlockPalette() {
           type="button"
           className={`block-swatch has-variants${isActive ? ' selected' : ''}`}
           style={{ backgroundColor: face.color }}
-          title={`${parent.name} (${members.length} options)`}
-          aria-label={`${parent.name} group`}
+          title={`${group.label} (${members.length} options)`}
+          aria-label={`${group.label} group`}
           aria-expanded={open}
           onClick={() => {
-            setSelectedBlock(parent.id);
+            // Header-only groups (no generic) just expand; groups with a generic
+            // block also select it.
+            if (group.genericId) setSelectedBlock(group.genericId);
             setExpandedGroupId(open ? null : group.id);
           }}
         >
@@ -99,7 +100,7 @@ export function BlockPalette() {
                 key={member.id}
                 block={member}
                 selected={member.id === selectedBlockId}
-                extraClass={member.id === parent.id ? 'variant-generic' : undefined}
+                extraClass={member.id === group.genericId ? 'variant-generic' : undefined}
                 onClick={() => {
                   setSelectedBlock(member.id);
                   setExpandedGroupId(null);
