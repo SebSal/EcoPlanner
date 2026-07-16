@@ -1,20 +1,22 @@
-import { useLayoutEffect, useMemo, useRef } from 'react';
+import { Suspense, useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { useTexture } from '@react-three/drei';
 import { useBuildStore } from '../../state/useBuildStore';
 import { coordsFromIndex } from '../../lib/voxelGrid';
-import { getBlockColor } from '../../data/blockPalette';
+import { getBlockColor, getBlockTexture } from '../../data/blockPalette';
 
 type Position = [number, number, number];
 
-function InstancedGroup({
-  blockTypeId,
+// Shared instanced cubes; the material is supplied by the caller so we can use
+// either a flat color or a texture without duplicating the matrix bookkeeping.
+function InstancedBoxes({
   positions,
+  children,
 }: {
-  blockTypeId: string;
   positions: Position[];
+  children: React.ReactNode;
 }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const color = getBlockColor(blockTypeId);
 
   useLayoutEffect(() => {
     const mesh = meshRef.current;
@@ -30,8 +32,38 @@ function InstancedGroup({
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, positions.length]}>
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={color} />
+      {children}
     </instancedMesh>
+  );
+}
+
+function ColorGroup({ color, positions }: { color: string; positions: Position[] }) {
+  return (
+    <InstancedBoxes positions={positions}>
+      <meshStandardMaterial color={color} />
+    </InstancedBoxes>
+  );
+}
+
+function TexturedGroup({
+  textureUrl,
+  positions,
+}: {
+  textureUrl: string;
+  positions: Position[];
+}) {
+  const texture = useTexture(textureUrl);
+
+  useMemo(() => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+  }, [texture]);
+
+  return (
+    <InstancedBoxes positions={positions}>
+      <meshStandardMaterial map={texture} />
+    </InstancedBoxes>
   );
 }
 
@@ -59,9 +91,22 @@ export function VoxelInstancedMesh() {
 
   return (
     <>
-      {groups.map(([blockTypeId, positions]) => (
-        <InstancedGroup key={blockTypeId} blockTypeId={blockTypeId} positions={positions} />
-      ))}
+      {groups.map(([blockTypeId, positions]) => {
+        const color = getBlockColor(blockTypeId);
+        const textureUrl = getBlockTexture(blockTypeId);
+        // Textured blocks fall back to their flat color while the image loads
+        // (and forever, if the block has no texture defined).
+        return textureUrl ? (
+          <Suspense
+            key={blockTypeId}
+            fallback={<ColorGroup color={color} positions={positions} />}
+          >
+            <TexturedGroup textureUrl={textureUrl} positions={positions} />
+          </Suspense>
+        ) : (
+          <ColorGroup key={blockTypeId} color={color} positions={positions} />
+        );
+      })}
     </>
   );
 }

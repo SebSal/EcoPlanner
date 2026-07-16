@@ -16,7 +16,11 @@ export function BlockPalette() {
           title={block.name}
           aria-label={block.name}
           onClick={() => setSelectedBlock(block.id)}
-        />
+        >
+          {block.icon && (
+            <img className="block-swatch-icon" src={block.icon} alt="" draggable={false} />
+          )}
+        </button>
       ))}
     </div>
   );
