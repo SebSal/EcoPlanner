@@ -58,6 +58,16 @@ export const BLOCK_GROUPS: BlockGroup[] = [
       'composite_lumber_spruce',
     ],
   },
+  {
+    id: 'carpet',
+    label: 'Carpet',
+    memberIds: ['carpet_cotton', 'carpet_nylon', 'carpet_wool'],
+  },
+  {
+    id: 'road',
+    label: 'Road',
+    memberIds: ['dirt_road', 'stone_road', 'asphalt_road'],
+  },
 ];
 
 const groupByMemberId = new Map<string, BlockGroup>();

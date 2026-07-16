@@ -61,7 +61,22 @@ const BLOCKS = [
   { id: 'composite_lumber_saguaro', name: 'Composite Saguaro Lumber', texture: true },
   { id: 'composite_lumber_spruce', name: 'Composite Spruce Lumber', texture: true },
   { id: 'reinforced_concrete', name: 'Reinforced Concrete', texture: true },
-  { id: 'asphalt_concrete', name: 'Asphalt Concrete', texture: true },
+  { id: 'flat_steel', name: 'Flat Steel', texture: true },
+  // Carpet's surface texture is a desaturated "tintable" base meant to be
+  // dyed in-game; it averages to near-gray and doesn't read as the actual
+  // carpet color. `color` here is a fixed override sampled from the top face
+  // of each carpet's inventory icon (its default in-game dye), same
+  // rationale as the Glass override below.
+  { id: 'carpet_cotton', name: 'Cotton Carpet', texture: true, color: '#a18e46' },
+  { id: 'carpet_nylon', name: 'Nylon Carpet', texture: true, color: '#6885a1' },
+  { id: 'carpet_wool', name: 'Wool Carpet', texture: true, color: '#a5936a' },
+  { id: 'dirt_road', name: 'Dirt Road', texture: true },
+  { id: 'stone_road', name: 'Stone Road', texture: true },
+  // Asphalt Road replaces the old "Asphalt Concrete" entry: it's the same
+  // in-game item (AsphaltConcreteItem is tagged [MakesRoads]/"RoadType" and
+  // is primarily placed as a road), so this uses the identical Asphalt_Albedo
+  // texture the old entry used, just renamed/reframed as its road identity.
+  { id: 'asphalt_road', name: 'Asphalt Road', texture: true },
   // Both glass types are rendered with partial opacity in the 3D view (see
   // VoxelInstancedMesh) — `opacity` here just carries that value through to
   // the generated palette. `color` is a fixed override: the source imagery
