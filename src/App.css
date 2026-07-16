@@ -68,6 +68,47 @@
   box-shadow: 0 0 0 2px var(--accent);
 }
 
+/* Group parent swatch: a small corner marker signals it expands into variants. */
+.block-group {
+  position: relative;
+  display: inline-flex;
+}
+
+.block-swatch.has-variants::after {
+  content: '';
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-bottom: 6px solid #fff;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+.block-variants-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 320px;
+  padding: 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Distinguish the generic block inside the variant popover. */
+.block-variants-popover .block-swatch.variant-generic {
+  border-color: var(--claim-line);
+}
+
 .app-panes {
   display: flex;
   flex: 1;
