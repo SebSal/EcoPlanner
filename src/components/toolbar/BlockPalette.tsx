@@ -1,4 +1,4 @@
-import { BLOCK_PALETTE } from '../../data/blockPalette';
+import { BLOCK_PALETTE, getBlockIcon } from '../../data/blockPalette';
 import { useBuildStore } from '../../state/useBuildStore';
 
 export function BlockPalette() {
@@ -16,7 +16,9 @@ export function BlockPalette() {
           title={block.name}
           aria-label={block.name}
           onClick={() => setSelectedBlock(block.id)}
-        />
+        >
+          <img src={getBlockIcon(block.id)} alt="" draggable={false} />
+        </button>
       ))}
     </div>
   );
