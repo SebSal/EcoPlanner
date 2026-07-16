@@ -50,10 +50,23 @@ const BLOCKS = [
   { id: 'hardwood_lumber', name: 'Hardwood Lumber', texture: true },
   { id: 'softwood_lumber', name: 'Softwood Lumber', texture: true },
   { id: 'composite_lumber', name: 'Composite Lumber', texture: true },
+  { id: 'composite_lumber_birch', name: 'Composite Birch Lumber', texture: true },
+  { id: 'composite_lumber_cedar', name: 'Composite Cedar Lumber', texture: true },
+  { id: 'composite_lumber_ceiba', name: 'Composite Ceiba Lumber', texture: true },
+  { id: 'composite_lumber_fir', name: 'Composite Fir Lumber', texture: true },
+  { id: 'composite_lumber_joshua', name: 'Composite Joshua Lumber', texture: true },
+  { id: 'composite_lumber_oak', name: 'Composite Oak Lumber', texture: true },
+  { id: 'composite_lumber_palm', name: 'Composite Palm Lumber', texture: true },
+  { id: 'composite_lumber_redwood', name: 'Composite Redwood Lumber', texture: true },
+  { id: 'composite_lumber_saguaro', name: 'Composite Saguaro Lumber', texture: true },
+  { id: 'composite_lumber_spruce', name: 'Composite Spruce Lumber', texture: true },
   { id: 'reinforced_concrete', name: 'Reinforced Concrete', texture: true },
   { id: 'asphalt_concrete', name: 'Asphalt Concrete', texture: true },
-  { id: 'glass', name: 'Glass', texture: false },
-  { id: 'framed_glass', name: 'Framed Glass', texture: true },
+  // Both glass types are rendered with partial opacity in the 3D view (see
+  // VoxelInstancedMesh) — `opacity` here just carries that value through to
+  // the generated palette.
+  { id: 'glass', name: 'Glass', texture: false, opacity: 0.5 },
+  { id: 'framed_glass', name: 'Framed Glass', texture: true, opacity: 0.7 },
 ];
 
 function toHex(r, g, b) {
@@ -128,13 +141,20 @@ async function main() {
 
     const color = await averageColor(colorSourceBuffer);
 
-    entries.push({ id: block.id, name: block.name, color, texture: texturePath });
+    entries.push({
+      id: block.id,
+      name: block.name,
+      color,
+      texture: texturePath,
+      opacity: block.opacity,
+    });
     console.log(`${block.id}: color=${color}${texturePath ? ` texture=${texturePath}` : ' (no texture)'}`);
   }
 
   const lines = entries.map((e) => {
     const fields = [`id: '${e.id}'`, `name: '${e.name}'`, `color: '${e.color}'`];
     if (e.texture) fields.push(`texture: '${e.texture}'`);
+    if (e.opacity !== undefined) fields.push(`opacity: ${e.opacity}`);
     return `  { ${fields.join(', ')} },`;
   });
 
@@ -145,6 +165,7 @@ export interface BlockType {
   name: string;
   color: string; // hex fallback (average color of the texture, or of the icon if untextured)
   texture?: string; // path under /public to a tiling surface texture; optional
+  opacity?: number; // 0-1; 3D-only, e.g. for glass. Defaults to fully opaque (1) when omitted.
 }
 
 export const BLOCK_PALETTE: BlockType[] = [
@@ -167,6 +188,10 @@ export function getBlockTexture(blockTypeId: string): string | undefined {
 
 export function getBlockIcon(blockTypeId: string): string {
   return \`/icons/blocks/\${blockTypeId}.png\`;
+}
+
+export function getBlockOpacity(blockTypeId: string): number {
+  return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.opacity ?? 1;
 }
 `;
 

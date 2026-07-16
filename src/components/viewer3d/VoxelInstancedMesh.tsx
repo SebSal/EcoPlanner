@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useBuildStore } from '../../state/useBuildStore';
 import { coordsFromIndex } from '../../lib/voxelGrid';
-import { getBlockColor, getBlockTexture } from '../../data/blockPalette';
+import { getBlockColor, getBlockOpacity, getBlockTexture } from '../../data/blockPalette';
 
 type Position = [number, number, number];
 
@@ -35,6 +35,7 @@ function InstancedGroup({
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const color = getBlockColor(blockTypeId);
   const texturePath = getBlockTexture(blockTypeId);
+  const opacity = getBlockOpacity(blockTypeId);
   const map = useMemo(() => (texturePath ? loadBlockTexture(texturePath) : null), [texturePath]);
 
   useLayoutEffect(() => {
@@ -53,7 +54,12 @@ function InstancedGroup({
       <boxGeometry args={[1, 1, 1]} />
       {/* When a texture is present, leave the material color white so the
           texture isn't tinted by the (darker) average fallback color. */}
-      <meshStandardMaterial color={map ? '#ffffff' : color} map={map} />
+      <meshStandardMaterial
+        color={map ? '#ffffff' : color}
+        map={map}
+        transparent={opacity < 1}
+        opacity={opacity}
+      />
     </instancedMesh>
   );
 }

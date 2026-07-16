@@ -5,6 +5,7 @@ export interface BlockType {
   name: string;
   color: string; // hex fallback (average color of the texture, or of the icon if untextured)
   texture?: string; // path under /public to a tiling surface texture; optional
+  opacity?: number; // 0-1; 3D-only, e.g. for glass. Defaults to fully opaque (1) when omitted.
 }
 
 export const BLOCK_PALETTE: BlockType[] = [
@@ -22,11 +23,21 @@ export const BLOCK_PALETTE: BlockType[] = [
   { id: 'lumber', name: 'Lumber', color: '#e6ccab', texture: '/textures/blocks/lumber.png' },
   { id: 'hardwood_lumber', name: 'Hardwood Lumber', color: '#d1a372', texture: '/textures/blocks/hardwood_lumber.png' },
   { id: 'softwood_lumber', name: 'Softwood Lumber', color: '#e6ccac', texture: '/textures/blocks/softwood_lumber.png' },
-  { id: 'composite_lumber', name: 'Composite Lumber', color: '#6c4933', texture: '/textures/blocks/composite_lumber.png' },
+  { id: 'composite_lumber', name: 'Composite Lumber', color: '#eacfae', texture: '/textures/blocks/composite_lumber.png' },
+  { id: 'composite_lumber_birch', name: 'Composite Birch Lumber', color: '#dcb380', texture: '/textures/blocks/composite_lumber_birch.png' },
+  { id: 'composite_lumber_cedar', name: 'Composite Cedar Lumber', color: '#a86838', texture: '/textures/blocks/composite_lumber_cedar.png' },
+  { id: 'composite_lumber_ceiba', name: 'Composite Ceiba Lumber', color: '#ab9578', texture: '/textures/blocks/composite_lumber_ceiba.png' },
+  { id: 'composite_lumber_fir', name: 'Composite Fir Lumber', color: '#e4ae82', texture: '/textures/blocks/composite_lumber_fir.png' },
+  { id: 'composite_lumber_joshua', name: 'Composite Joshua Lumber', color: '#cd9664', texture: '/textures/blocks/composite_lumber_joshua.png' },
+  { id: 'composite_lumber_oak', name: 'Composite Oak Lumber', color: '#835c2c', texture: '/textures/blocks/composite_lumber_oak.png' },
+  { id: 'composite_lumber_palm', name: 'Composite Palm Lumber', color: '#c66d2e', texture: '/textures/blocks/composite_lumber_palm.png' },
+  { id: 'composite_lumber_redwood', name: 'Composite Redwood Lumber', color: '#602f1e', texture: '/textures/blocks/composite_lumber_redwood.png' },
+  { id: 'composite_lumber_saguaro', name: 'Composite Saguaro Lumber', color: '#5f471c', texture: '/textures/blocks/composite_lumber_saguaro.png' },
+  { id: 'composite_lumber_spruce', name: 'Composite Spruce Lumber', color: '#f3dba7', texture: '/textures/blocks/composite_lumber_spruce.png' },
   { id: 'reinforced_concrete', name: 'Reinforced Concrete', color: '#929592', texture: '/textures/blocks/reinforced_concrete.png' },
   { id: 'asphalt_concrete', name: 'Asphalt Concrete', color: '#5e5d5e', texture: '/textures/blocks/asphalt_concrete.png' },
-  { id: 'glass', name: 'Glass', color: '#a7937b' },
-  { id: 'framed_glass', name: 'Framed Glass', color: '#dde4ec', texture: '/textures/blocks/framed_glass.png' },
+  { id: 'glass', name: 'Glass', color: '#a7937b', opacity: 0.5 },
+  { id: 'framed_glass', name: 'Framed Glass', color: '#dde4ec', texture: '/textures/blocks/framed_glass.png', opacity: 0.7 },
 ];
 
 export const DEFAULT_BLOCK_COLOR = '#e05fd0'; // fallback for unknown blockTypeId on import
@@ -45,4 +56,8 @@ export function getBlockTexture(blockTypeId: string): string | undefined {
 
 export function getBlockIcon(blockTypeId: string): string {
   return `/icons/blocks/${blockTypeId}.png`;
+}
+
+export function getBlockOpacity(blockTypeId: string): number {
+  return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.opacity ?? 1;
 }
