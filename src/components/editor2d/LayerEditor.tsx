@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { useBuildStore } from '../../state/useBuildStore';
-import { getCell } from '../../lib/voxelGrid';
+import { CLAIM_SIZE, getCell } from '../../lib/voxelGrid';
 import { getBlockColor } from '../../data/blockPalette';
 
 const CELL_SIZE = 28;
@@ -13,33 +13,56 @@ export function LayerEditor() {
   const paintCell = useBuildStore((s) => s.paintCell);
 
   const isPaintingRef = useRef(false);
+  const draggedRef = useRef(false);
+  const pendingCellRef = useRef<{ x: number; z: number } | null>(null);
   const lastPaintedRef = useRef<string | null>(null);
 
-  const paint = useCallback(
+  // Press: remember the cell but don't paint yet — we don't know if this is a
+  // single click (toggle) or the start of a drag (place) until the pointer moves.
+  const beginStroke = useCallback((x: number, z: number) => {
+    isPaintingRef.current = true;
+    draggedRef.current = false;
+    pendingCellRef.current = { x, z };
+    lastPaintedRef.current = `${x},${z}`;
+  }, []);
+
+  // Entering a new cell while pressed means this stroke is a drag: commit the
+  // pressed cell as a plain place, then place each entered cell (never toggles).
+  const extendStroke = useCallback(
     (x: number, z: number) => {
+      if (!isPaintingRef.current) return;
       const key = `${x},${z}`;
       if (lastPaintedRef.current === key) return;
+      if (!draggedRef.current) {
+        draggedRef.current = true;
+        const pending = pendingCellRef.current;
+        if (pending) paintCell(pending.x, pending.z);
+        pendingCellRef.current = null;
+      }
       lastPaintedRef.current = key;
       paintCell(x, z);
     },
     [paintCell],
   );
 
+  // Release (or leave): a stroke that never became a drag was a single click, so
+  // apply the toggle to the pressed cell.
+  const endStroke = useCallback(() => {
+    const pending = pendingCellRef.current;
+    if (!draggedRef.current && pending) {
+      paintCell(pending.x, pending.z, true);
+    }
+    isPaintingRef.current = false;
+    draggedRef.current = false;
+    pendingCellRef.current = null;
+    lastPaintedRef.current = null;
+  }, [paintCell]);
+
   const rows: number[] = [];
   for (let z = dimensions.depth - 1; z >= 0; z--) rows.push(z);
 
   return (
-    <div
-      className="layer-editor"
-      onPointerLeave={() => {
-        isPaintingRef.current = false;
-        lastPaintedRef.current = null;
-      }}
-      onPointerUp={() => {
-        isPaintingRef.current = false;
-        lastPaintedRef.current = null;
-      }}
-    >
+    <div className="layer-editor" onPointerLeave={endStroke} onPointerUp={endStroke}>
       <div
         className="layer-editor-grid"
         style={{
@@ -62,18 +85,21 @@ export function LayerEditor() {
               background = getBlockColor(belowBlockId) + '40'; // ~25% alpha
             }
 
+            // Heavier borders on claim boundaries (every CLAIM_SIZE blocks).
+            const claimX = (x + 1) % CLAIM_SIZE === 0;
+            const claimZ = z % CLAIM_SIZE === 0 && z > 0;
+            const className =
+              'layer-editor-cell' +
+              (claimX ? ' claim-x' : '') +
+              (claimZ ? ' claim-z' : '');
+
             return (
               <div
                 key={`${x},${z}`}
-                className="layer-editor-cell"
+                className={className}
                 style={{ background }}
-                onPointerDown={() => {
-                  isPaintingRef.current = true;
-                  paint(x, z);
-                }}
-                onPointerEnter={() => {
-                  if (isPaintingRef.current) paint(x, z);
-                }}
+                onPointerDown={() => beginStroke(x, z)}
+                onPointerEnter={() => extendStroke(x, z)}
               />
             );
           }),

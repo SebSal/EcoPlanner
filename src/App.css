@@ -134,6 +134,15 @@
   cursor: pointer;
 }
 
+/* Heavier lines on claim boundaries (every 5 blocks) on both ground axes. */
+.layer-editor-cell.claim-x {
+  border-right: 2px solid var(--claim-line);
+}
+
+.layer-editor-cell.claim-z {
+  border-bottom: 2px solid var(--claim-line);
+}
+
 .dialog-overlay {
   position: fixed;
   inset: 0;

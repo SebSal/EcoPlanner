@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useBuildStore } from '../../state/useBuildStore';
+import { CLAIM_SIZE } from '../../lib/voxelGrid';
 
-const MIN_DIM = 1;
-const MAX_DIM = 64;
+const MIN_CLAIMS = 1;
+const MAX_CLAIMS = 12; // 12 claims = 60 blocks, within the 64-block grid cap
 
 interface NewProjectDialogProps {
   isOpen: boolean;
@@ -13,19 +14,25 @@ interface NewProjectDialogProps {
 export function NewProjectDialog({ isOpen, canCancel, onClose }: NewProjectDialogProps) {
   const newProject = useBuildStore((s) => s.newProject);
   const [name, setName] = useState('Untitled Build');
-  const [width, setWidth] = useState(8);
-  const [height, setHeight] = useState(8);
-  const [depth, setDepth] = useState(8);
+  const [widthClaims, setWidthClaims] = useState(2);
+  const [depthClaims, setDepthClaims] = useState(2);
 
   if (!isOpen) return null;
 
-  const clamp = (value: number) => Math.min(Math.max(Math.round(value) || MIN_DIM, MIN_DIM), MAX_DIM);
+  const clampClaims = (value: number) =>
+    Math.min(Math.max(Math.round(value) || MIN_CLAIMS, MIN_CLAIMS), MAX_CLAIMS);
+
+  const widthBlocks = clampClaims(widthClaims) * CLAIM_SIZE;
+  const depthBlocks = clampClaims(depthClaims) * CLAIM_SIZE;
 
   const handleConfirm = () => {
     if (canCancel && !window.confirm('Start a new project? Your current build will be replaced.')) {
       return;
     }
-    newProject({ width: clamp(width), height: clamp(height), depth: clamp(depth) }, name.trim() || 'Untitled Build');
+    newProject(
+      { width: widthBlocks, height: 1, depth: depthBlocks },
+      name.trim() || 'Untitled Build',
+    );
     onClose();
   };
 
@@ -39,38 +46,29 @@ export function NewProjectDialog({ isOpen, canCancel, onClose }: NewProjectDialo
         </label>
         <div className="dialog-dimensions">
           <label>
-            Width (X)
+            Width (X, claims)
             <input
               type="number"
-              min={MIN_DIM}
-              max={MAX_DIM}
-              value={width}
-              onChange={(e) => setWidth(Number(e.target.value))}
+              min={MIN_CLAIMS}
+              max={MAX_CLAIMS}
+              value={widthClaims}
+              onChange={(e) => setWidthClaims(Number(e.target.value))}
             />
           </label>
           <label>
-            Height (Y)
+            Depth (Y, claims)
             <input
               type="number"
-              min={MIN_DIM}
-              max={MAX_DIM}
-              value={height}
-              onChange={(e) => setHeight(Number(e.target.value))}
-            />
-          </label>
-          <label>
-            Depth (Z)
-            <input
-              type="number"
-              min={MIN_DIM}
-              max={MAX_DIM}
-              value={depth}
-              onChange={(e) => setDepth(Number(e.target.value))}
+              min={MIN_CLAIMS}
+              max={MAX_CLAIMS}
+              value={depthClaims}
+              onChange={(e) => setDepthClaims(Number(e.target.value))}
             />
           </label>
         </div>
         <p className="dialog-hint">
-          Dimensions are set at creation and can't be changed later in this version.
+          1 claim = {CLAIM_SIZE} blocks → {widthBlocks} × {depthBlocks} blocks, 1 layer tall.
+          Build upward with the ▲ Up button.
         </p>
         <div className="dialog-actions">
           {canCancel && (

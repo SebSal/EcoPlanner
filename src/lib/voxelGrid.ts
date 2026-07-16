@@ -1,5 +1,8 @@
 import type { BlockTypeId, VoxelDimensions, VoxelGrid } from '../types/voxel';
 
+// Eco divides the ground into "claims" of CLAIM_SIZE x CLAIM_SIZE blocks.
+export const CLAIM_SIZE = 5;
+
 export function createEmptyGrid(dimensions: VoxelDimensions): VoxelGrid {
   const size = dimensions.width * dimensions.height * dimensions.depth;
   return { dimensions, cells: new Array(size).fill(null) };

@@ -5,8 +5,10 @@ import type { ProjectFileV1 } from '../types/project';
 import { BLOCK_PALETTE } from '../data/blockPalette';
 import {
   createEmptyGrid,
+  getCell,
   gridFromSparseBlocks,
   gridToSparseBlocks,
+  resizeGrid,
   setCell,
 } from '../lib/voxelGrid';
 import { loadAutosave, saveAutosave } from '../lib/persistence';
@@ -29,8 +31,9 @@ interface BuildState {
     onionSkinEnabled: boolean;
   };
 
-  paintCell(x: number, z: number): void;
+  paintCell(x: number, z: number, allowToggle?: boolean): void;
   setLayer(y: number): void;
+  goUpLayer(): void;
   setSelectedBlock(id: BlockTypeId): void;
   setToolMode(mode: ToolMode): void;
   toggleOnionSkin(): void;
@@ -42,6 +45,7 @@ interface BuildState {
 }
 
 const DEFAULT_DIMENSIONS: VoxelDimensions = { width: 8, height: 8, depth: 8 };
+const MAX_HEIGHT = 64;
 
 function emptyProject(dimensions: VoxelDimensions, name: string) {
   const now = new Date().toISOString();
@@ -87,10 +91,16 @@ export const useBuildStore = create<BuildState>()(
       onionSkinEnabled: true,
     },
 
-    paintCell(x, z) {
+    paintCell(x, z, allowToggle = false) {
       set((state) => {
         const { currentLayerY, toolMode, selectedBlockId } = state.ui;
-        const value = toolMode === 'place' ? selectedBlockId : null;
+        if (toolMode === 'erase') {
+          setCell(state.project.grid, x, currentLayerY, z, null);
+          return;
+        }
+        const existing = getCell(state.project.grid, x, currentLayerY, z);
+        const value =
+          allowToggle && existing === selectedBlockId ? null : selectedBlockId;
         setCell(state.project.grid, x, currentLayerY, z, value);
       });
     },
@@ -99,6 +109,22 @@ export const useBuildStore = create<BuildState>()(
       set((state) => {
         const maxY = state.project.dimensions.height - 1;
         state.ui.currentLayerY = Math.min(Math.max(y, 0), maxY);
+      });
+    },
+
+    goUpLayer() {
+      set((state) => {
+        const { height } = state.project.dimensions;
+        if (state.ui.currentLayerY < height - 1) {
+          state.ui.currentLayerY += 1;
+          return;
+        }
+        // Already on the top layer: grow the build upward by one empty layer.
+        if (height >= MAX_HEIGHT) return;
+        const newDims = { ...state.project.dimensions, height: height + 1 };
+        state.project.grid = resizeGrid(state.project.grid, newDims);
+        state.project.dimensions = newDims;
+        state.ui.currentLayerY = height;
       });
     },
 

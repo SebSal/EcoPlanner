@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
 import { useBuildStore } from '../../state/useBuildStore';
+import { CLAIM_SIZE } from '../../lib/voxelGrid';
 import { VoxelInstancedMesh } from './VoxelInstancedMesh';
 
 export function Scene() {
@@ -18,8 +19,11 @@ export function Scene() {
       <Grid
         position={[0, -0.51, 0]}
         args={[Math.max(20, maxDim * 2), Math.max(20, maxDim * 2)]}
+        cellSize={1}
         cellColor="#666"
-        sectionColor="#888"
+        sectionSize={CLAIM_SIZE}
+        sectionThickness={1.5}
+        sectionColor="#8a8ca0"
         fadeDistance={maxDim * 6}
       />
       <VoxelInstancedMesh />
