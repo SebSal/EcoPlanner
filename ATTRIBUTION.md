@@ -6,27 +6,14 @@
 contain surface textures, inventory icons, and 3D shape geometry (e.g.
 Stairs, Roof, Fence, Wall, and the rest of each material's shape catalog)
 extracted from the game **Eco** (https://play.eco), which is developed by
-**Strange Loop Games**. All rights to these assets belong to Strange Loop
-Games. Real extracted mesh geometry is an even clearer case of a copyrighted
-game asset than a derived average color or a resized texture, so it stays
-under the same pending-permission constraint as the rest of this branch
-below.
+**Strange Loop Games Inc**. All rights to these assets belong to, and they
+are copyrighted by, **Strange Loop Games Inc**.
 
-**Status: pending permission.** Use of these original game assets in
-EcoPlanner has been requested from Strange Loop Games' community manager but
-is not yet confirmed. Until approval is granted:
+**Status: permission granted.** Use of these original game assets in
+EcoPlanner was requested from Strange Loop Games Inc and has been confirmed.
 
-- These assets live only on the `add-eco-textures` branch and must not be
-  merged into `main` (which auto-deploys to the public GitHub Pages site).
-- If permission is declined, these files will be replaced with original
-  redraws inspired by — but not copied from — the game's visual style. The
-  `BlockType.texture` field is optional and swappable by design specifically
-  to make this replacement painless (see `src/data/blockPalette.ts`).
-
-Terms of use will be filled in here once permission is confirmed:
-
-> _(pending — terms of use, required credit line, and any usage restrictions
-> from Strange Loop Games go here)_
+> _(specific terms of use and any usage restrictions from Strange Loop Games
+> Inc go here, if any were specified beyond the permission itself)_
 
 ### Provenance
 

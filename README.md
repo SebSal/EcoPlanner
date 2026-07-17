@@ -1,5 +1,11 @@
 # ECO Build Planner
 
+> **Eco game assets notice:** Block textures, icons, and shape meshes in this
+> project are extracted from the game **Eco**, developed by **Strange Loop
+> Games Inc**, and are the intellectual property of and copyrighted by
+> **Strange Loop Games Inc**. All rights reserved. Used with permission — see
+> [ATTRIBUTION.md](ATTRIBUTION.md) for details.
+
 A lightweight, browser-based planner for designing block builds for the game
 **[Eco](https://play.eco/)**. Lay out your build layer by layer in a top-down 2D
 editor, watch it take shape in a live 3D preview, and keep an eye on exactly how

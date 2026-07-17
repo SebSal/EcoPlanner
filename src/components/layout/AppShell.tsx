@@ -6,6 +6,7 @@ import { LayerEditor } from '../editor2d/LayerEditor';
 import { LayerSelector } from '../editor2d/LayerSelector';
 import { Scene } from '../viewer3d/Scene';
 import { BlockCounter } from './BlockCounter';
+import { CopyrightNotice } from './CopyrightNotice';
 
 export function AppShell() {
   const hasProject = useBuildStore((s) => s.hasProject);
@@ -22,6 +23,7 @@ export function AppShell() {
         <div className="pane pane-3d">
           <Scene />
         </div>
+        <CopyrightNotice />
       </div>
       <BlockCounter />
       <NewProjectDialog
