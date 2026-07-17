@@ -5,6 +5,7 @@ import { getAvailableShapes, getShapeLabel } from '../../data/blockShapes';
 export function ShapeSelector() {
   const selectedBlockId = useBuildStore((s) => s.ui.selectedBlockId);
   const selectedShape = useBuildStore((s) => s.ui.selectedShape);
+  const selectedRotation = useBuildStore((s) => s.ui.selectedRotation);
   const setSelectedShape = useBuildStore((s) => s.setSelectedShape);
   const rotateSelection = useBuildStore((s) => s.rotateSelection);
 
@@ -76,8 +77,20 @@ export function ShapeSelector() {
         </div>
       )}
       {selectedShape !== 'cube' && (
-        <button type="button" onClick={rotateSelection} title="Rotate" aria-label="Rotate selection">
-          ⟳
+        // The arrow points the current facing and spins as you rotate (click or
+        // R key) — same up=0 / counter-clockwise convention as the 2D grid's
+        // per-cell facing arrows so the two read consistently.
+        <button
+          type="button"
+          className="rotate-button"
+          onClick={rotateSelection}
+          title="Rotate (R)"
+          aria-label="Rotate selection"
+        >
+          <span
+            className="rotate-arrow"
+            style={{ transform: `rotate(${-selectedRotation * 90}deg)` }}
+          />
         </button>
       )}
     </div>

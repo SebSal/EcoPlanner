@@ -63,6 +63,25 @@
   min-width: 90px;
 }
 
+/* Rotate control doubles as the current-facing indicator: an up-at-0 triangle
+   that spins with the selected rotation. */
+.rotate-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 6px;
+}
+
+.rotate-arrow {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid currentColor;
+  transition: transform 0.12s ease;
+}
+
 .shape-selector-caret {
   width: 0;
   height: 0;
@@ -215,6 +234,9 @@
   align-items: center;
   padding: 12px;
   gap: 12px;
+  /* The layer editor manages its own pan/zoom viewport; don't let the pane
+     itself scroll. */
+  overflow: hidden;
 }
 
 .pane-3d {
@@ -254,13 +276,28 @@
 }
 
 .layer-editor {
-  overflow: auto;
+  /* Clipping viewport for the pan/zoom canvas inside it. */
+  position: relative;
+  flex: 1;
+  align-self: stretch;
+  min-height: 0;
+  overflow: hidden;
   touch-action: none;
   /* Painting is a drag gesture — don't let the browser select or drag-ghost
      the grid while the pointer moves across cells. */
   user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
+}
+
+/* Panned/zoomed layer via a CSS transform; pointer events still hit the cells
+   underneath, so painting is unaffected by the transform. */
+.layer-editor-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
 }
 
 .layer-editor-grid {
