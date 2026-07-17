@@ -851,7 +851,7 @@ export function getShapeMeshId(blockId: string, shape: ShapeId): string | undefi
 }
 
 export function getShapeMeshPath(meshId: string): string {
-  return `/meshes/${meshId}.obj`;
+  return `${import.meta.env.BASE_URL}meshes/${meshId}.obj`;
 }
 
 export function getShapeLabel(shape: ShapeId): string {

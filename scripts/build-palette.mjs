@@ -207,11 +207,14 @@ export function getBlockName(blockTypeId: string): string {
 }
 
 export function getBlockTexture(blockTypeId: string): string | undefined {
-  return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.texture;
+  const texture = BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.texture;
+  // Resolve against Vite's base URL so assets load under a GitHub Pages project
+  // subpath (e.g. /EcoPlanner/) rather than the domain root.
+  return texture ? import.meta.env.BASE_URL + texture.replace(/^\\/+/, '') : undefined;
 }
 
 export function getBlockIcon(blockTypeId: string): string {
-  return \`/icons/blocks/\${blockTypeId}.png\`;
+  return \`\${import.meta.env.BASE_URL}icons/blocks/\${blockTypeId}.png\`;
 }
 
 export function getBlockOpacity(blockTypeId: string): number {
