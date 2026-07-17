@@ -256,6 +256,11 @@
 .layer-editor {
   overflow: auto;
   touch-action: none;
+  /* Painting is a drag gesture — don't let the browser select or drag-ghost
+     the grid while the pointer moves across cells. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 
 .layer-editor-grid {

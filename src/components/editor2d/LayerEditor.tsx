@@ -62,7 +62,15 @@ export function LayerEditor() {
   for (let z = dimensions.depth - 1; z >= 0; z--) rows.push(z);
 
   return (
-    <div className="layer-editor" onPointerLeave={endStroke} onPointerUp={endStroke}>
+    <div
+      className="layer-editor"
+      onPointerLeave={endStroke}
+      onPointerUp={endStroke}
+      // Painting is a press-and-drag gesture; stop the browser from starting a
+      // native element/selection drag ("ghost" image of the grid) instead.
+      draggable={false}
+      onDragStart={(e) => e.preventDefault()}
+    >
       <div
         className="layer-editor-grid"
         style={{
