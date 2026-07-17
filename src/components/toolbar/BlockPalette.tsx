@@ -6,14 +6,8 @@ import { useBuildStore } from '../../state/useBuildStore';
 // Preview a block with its actual surface texture, falling back to the inventory
 // icon (e.g. untextured glass) and, under that, the flat color on the swatch.
 function BlockPreview({ block }: { block: BlockType }) {
-  const texture = getBlockTexture(block.id);
   return (
-    <img
-      className={texture ? 'block-swatch-preview is-texture' : 'block-swatch-preview'}
-      src={texture ?? getBlockIcon(block.id)}
-      alt=""
-      draggable={false}
-    />
+    <img src={getBlockTexture(block.id) ?? getBlockIcon(block.id)} alt="" draggable={false} />
   );
 }
 
