@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useBuildStore } from '../../state/useBuildStore';
 import { Toolbar } from '../toolbar/Toolbar';
 import { NewProjectDialog } from '../toolbar/NewProjectDialog';
@@ -11,6 +11,23 @@ import { CopyrightNotice } from './CopyrightNotice';
 export function AppShell() {
   const hasProject = useBuildStore((s) => s.hasProject);
   const [dialogOpen, setDialogOpen] = useState(!hasProject);
+
+  // Press R to rotate the current selection (skip while typing in a field, and
+  // no-op for cube which has no facing). Reads state fresh so the listener
+  // doesn't need re-registering.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== 'r' || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      const s = useBuildStore.getState();
+      if (s.ui.selectedShape === 'cube') return;
+      e.preventDefault();
+      s.rotateSelection();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
     <div className="app-shell">
