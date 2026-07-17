@@ -1,7 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
-import { getBlockIcon, type BlockType } from '../../data/blockPalette';
+import { getBlockIcon, getBlockTexture, type BlockType } from '../../data/blockPalette';
 import { getPaletteItems, type PaletteItem } from '../../data/blockGroups';
 import { useBuildStore } from '../../state/useBuildStore';
+
+// Preview a block with its actual surface texture, falling back to the inventory
+// icon (e.g. untextured glass) and, under that, the flat color on the swatch.
+function BlockPreview({ block }: { block: BlockType }) {
+  const texture = getBlockTexture(block.id);
+  return (
+    <img
+      className={texture ? 'block-swatch-preview is-texture' : 'block-swatch-preview'}
+      src={texture ?? getBlockIcon(block.id)}
+      alt=""
+      draggable={false}
+    />
+  );
+}
 
 function Swatch({
   block,
@@ -23,7 +37,7 @@ function Swatch({
       aria-label={block.name}
       onClick={onClick}
     >
-      <img src={getBlockIcon(block.id)} alt="" draggable={false} />
+      <BlockPreview block={block} />
     </button>
   );
 }
@@ -91,7 +105,7 @@ export function BlockPalette() {
             setExpandedGroupId(open ? null : group.id);
           }}
         >
-          <img src={getBlockIcon(face.id)} alt="" draggable={false} />
+          <BlockPreview block={face} />
         </button>
         {open && (
           <div className="block-variants-popover" role="menu">
