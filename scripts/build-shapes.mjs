@@ -66,6 +66,8 @@ const FAMILY_SHAPE_CATALOG = {
   asphalt_road:
     'Cube RampA RampB RampC RampD TwoWhiteEdgeRotate WhiteCube WhiteDashLine WhiteEdge WhiteEdgeRotate WhiteLine WhiteRampDashLineA WhiteRampDashLineB WhiteRampDashLineC WhiteRampDashLineD WhiteRampEdgeA WhiteRampEdgeB WhiteRampEdgeC WhiteRampEdgeD WhiteRampLineA WhiteRampLineB WhiteRampLineC WhiteRampLineD',
   glass: 'Cube EdgeWall EdgeWallTurn FlatRoof ThinFloorBottom ThinFloorTop ThinWallCorner ThinWallStraight Window',
+  mortaredstone:
+    'Column Cube Floor Roof RoofCorner RoofCube RoofPeak RoofPeakSet RoofSide RoofTurn Stairs Wall WindowGrilles',
 };
 
 // Known-redundant raw file from an earlier, separately-run extraction pass:

@@ -71,7 +71,29 @@ const FAMILY_SHAPES: Record<string, ShapeId[]> = {
     "roofpeakset",
     "roofturn",
     "stairs",
-    "wall"
+    "wall",
+    "docksbarrelplatform",
+    "dockscolumn",
+    "docksfencemid",
+    "dockspillar",
+    "dockspillarbeam",
+    "dockspillarbeamcorner",
+    "dockspillarbeamend",
+    "dockspillarbeamendalt",
+    "dockspillarbeamjunction",
+    "dockspillarbeamt",
+    "dockspillarbeamx",
+    "docksplatform",
+    "docksplatformfill",
+    "docksrampa",
+    "docksrampb",
+    "docksrampc",
+    "docksrampd",
+    "docksramps",
+    "docksrampscorner",
+    "docksrampscornerinverted",
+    "roofside",
+    "windowgrilles"
   ],
   "lumber": [
     "cube",
@@ -300,6 +322,21 @@ const FAMILY_SHAPES: Record<string, ShapeId[]> = {
     "cube",
     "edgewall",
     "flatroof"
+  ],
+  "mortaredstone": [
+    "cube",
+    "column",
+    "floor",
+    "roof",
+    "roofcorner",
+    "roofcube",
+    "roofpeak",
+    "roofpeakset",
+    "roofside",
+    "roofturn",
+    "stairs",
+    "wall",
+    "windowgrilles"
   ]
 };
 
@@ -360,7 +397,29 @@ const FAMILY_SHAPE_MESH: Record<string, Record<string, string>> = {
     "roofpeakset": "hewnlog_roofpeakset",
     "roofturn": "hewnlog_roofturn",
     "stairs": "hewnlog_stairs",
-    "wall": "hewnlog_wall"
+    "wall": "hewnlog_wall",
+    "docksbarrelplatform": "hewnlog_docksbarrelplatform",
+    "dockscolumn": "hewnlog_dockscolumn",
+    "docksfencemid": "hewnlog_docksfencemid",
+    "dockspillar": "hewnlog_dockspillar",
+    "dockspillarbeam": "hewnlog_dockspillarbeam",
+    "dockspillarbeamcorner": "hewnlog_dockspillarbeamcorner",
+    "dockspillarbeamend": "hewnlog_dockspillarbeamend",
+    "dockspillarbeamendalt": "hewnlog_dockspillarbeamendalt",
+    "dockspillarbeamjunction": "hewnlog_dockspillarbeamjunction",
+    "dockspillarbeamt": "hewnlog_dockspillarbeamt",
+    "dockspillarbeamx": "hewnlog_dockspillarbeamx",
+    "docksplatform": "hewnlog_docksplatform",
+    "docksplatformfill": "hewnlog_docksplatformfill",
+    "docksrampa": "hewnlog_docksrampa",
+    "docksrampb": "hewnlog_docksrampb",
+    "docksrampc": "hewnlog_docksrampc",
+    "docksrampd": "hewnlog_docksrampd",
+    "docksramps": "hewnlog_docksramps",
+    "docksrampscorner": "hewnlog_docksrampscorner",
+    "docksrampscornerinverted": "hewnlog_docksrampscornerinverted",
+    "roofside": "hewnlog_roofside",
+    "windowgrilles": "hewnlog_windowgrilles"
   },
   "lumber": {
     "column": "lumber_column",
@@ -578,6 +637,20 @@ const FAMILY_SHAPE_MESH: Record<string, Record<string, string>> = {
   "glass": {
     "edgewall": "glass_edgewall",
     "flatroof": "glass_flatroof"
+  },
+  "mortaredstone": {
+    "column": "mortaredstone_column",
+    "floor": "mortaredstone_floor",
+    "roof": "mortaredstone_roof",
+    "roofcorner": "mortaredstone_roofcorner",
+    "roofcube": "mortaredstone_roofcube",
+    "roofpeak": "mortaredstone_roofpeak",
+    "roofpeakset": "mortaredstone_roofpeakset",
+    "roofside": "mortaredstone_roofside",
+    "roofturn": "mortaredstone_roofturn",
+    "stairs": "mortaredstone_stairs",
+    "wall": "mortaredstone_wall",
+    "windowgrilles": "mortaredstone_windowgrilles"
   }
 };
 
@@ -617,7 +690,11 @@ const BLOCK_FAMILY: Record<string, string> = {
   "carpet_wool": "carpet",
   "stone_road": "stone_road",
   "asphalt_road": "asphalt_road",
-  "glass": "glass"
+  "glass": "glass",
+  "mortared_stone": "mortaredstone",
+  "mortared_granite": "mortaredstone",
+  "mortared_limestone": "mortaredstone",
+  "mortared_sandstone": "mortaredstone"
 };
 
 // shape id -> humanized label for the UI, e.g. "roofcorner" -> "Roof Corner".
@@ -714,7 +791,6 @@ const SHAPE_LABELS: Record<string, string> = {
   "windowcorners": "Window Corners",
   "whitecube": "White Cube",
   "edgewall": "Edge Wall",
-  "basicslopeside": "Basic Slope Side",
   "docksbarrelplatform": "Docks Barrel Platform",
   "dockscolumn": "Docks Column",
   "docksfencemid": "Docks Fence Mid",
@@ -735,6 +811,7 @@ const SHAPE_LABELS: Record<string, string> = {
   "docksramps": "Docks Ramps",
   "docksrampscorner": "Docks Ramps Corner",
   "docksrampscornerinverted": "Docks Ramps Corner Inverted",
+  "basicslopeside": "Basic Slope Side",
   "roadbarrier": "Road Barrier",
   "canopywindow": "Canopy Window",
   "simplefloor": "Simple Floor",

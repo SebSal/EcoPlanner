@@ -60,6 +60,10 @@ const BLOCKS = [
   { id: 'composite_lumber_redwood', name: 'Composite Redwood Lumber', texture: true },
   { id: 'composite_lumber_saguaro', name: 'Composite Saguaro Lumber', texture: true },
   { id: 'composite_lumber_spruce', name: 'Composite Spruce Lumber', texture: true },
+  { id: 'mortared_stone', name: 'Mortared Stone', texture: true },
+  { id: 'mortared_granite', name: 'Mortared Granite', texture: true },
+  { id: 'mortared_limestone', name: 'Mortared Limestone', texture: true },
+  { id: 'mortared_sandstone', name: 'Mortared Sandstone', texture: true },
   { id: 'reinforced_concrete', name: 'Reinforced Concrete', texture: true },
   { id: 'flat_steel', name: 'Flat Steel', texture: true },
   // Carpet's surface texture is a desaturated "tintable" base meant to be

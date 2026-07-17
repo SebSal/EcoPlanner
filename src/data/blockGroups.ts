@@ -59,6 +59,12 @@ export const BLOCK_GROUPS: BlockGroup[] = [
     ],
   },
   {
+    id: 'mortared_stone',
+    label: 'Mortared Stone',
+    genericId: 'mortared_stone',
+    memberIds: ['mortared_stone', 'mortared_granite', 'mortared_limestone', 'mortared_sandstone'],
+  },
+  {
     id: 'carpet',
     label: 'Carpet',
     memberIds: ['carpet_cotton', 'carpet_nylon', 'carpet_wool'],
