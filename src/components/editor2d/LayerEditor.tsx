@@ -58,8 +58,12 @@ export function LayerEditor() {
     lastPaintedRef.current = null;
   }, [paintCell]);
 
+  // Render depth top-to-bottom (z ascending) so the 2D grid is a top-down view
+  // from ABOVE — the near/front of the build sits at the bottom of the grid,
+  // matching the 3D camera. (Rendering z descending made it a mirrored,
+  // from-below view.)
   const rows: number[] = [];
-  for (let z = dimensions.depth - 1; z >= 0; z--) rows.push(z);
+  for (let z = 0; z < dimensions.depth; z++) rows.push(z);
 
   return (
     <div
@@ -97,7 +101,10 @@ export function LayerEditor() {
             // blocks). Skip boundaries that fall on the outer frame so the grid
             // edge stays a thin line.
             const claimX = (x + 1) % CLAIM_SIZE === 0 && x !== dimensions.width - 1;
-            const claimZ = z % CLAIM_SIZE === 0 && z > 0;
+            // Rows now render z-ascending, so a cell's bottom border sits between
+            // z and z+1 — same form as claimX (matches on the last cell of each
+            // claim, skipping the outer frame).
+            const claimZ = (z + 1) % CLAIM_SIZE === 0 && z !== dimensions.depth - 1;
             const className =
               'layer-editor-cell' +
               (claimX ? ' claim-x' : '') +
@@ -119,7 +126,11 @@ export function LayerEditor() {
                 {cell && cell.shape !== 'cube' && (
                   <span
                     className="shape-rotation-indicator"
-                    style={{ transform: `translate(-50%, -50%) rotate(${cell.rotation * 90}deg)` }}
+                    // Negative so the arrow spins counter-clockwise to match the
+                    // 3D mesh's rotationY (CCW seen from above) in the top-down
+                    // view — a plain positive CSS rotation would spin the arrow
+                    // the opposite way and mismatch on odd rotations.
+                    style={{ transform: `translate(-50%, -50%) rotate(${-cell.rotation * 90}deg)` }}
                   />
                 )}
               </div>
