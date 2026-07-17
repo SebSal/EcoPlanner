@@ -13,6 +13,11 @@ interface Placement {
   rotation: 0 | 1 | 2 | 3;
 }
 
+// The transparent pane inside a window grille reuses the Glass block's tint and
+// opacity so grille glass matches standalone glass.
+const GLASS_PANE_COLOR = getBlockColor('glass');
+const GLASS_PANE_OPACITY = getBlockOpacity('glass');
+
 // Textures are shared across every InstancedGroup instance of the same block
 // type (and across re-renders), so cache the loaded THREE.Texture by path.
 const textureCache = new Map<string, THREE.Texture>();
@@ -74,6 +79,27 @@ function InstancedGroup({
   // once per mesh id — cached after that.
   if (shape !== 'cube' && !stairsGeometry) return null;
 
+  // Window grilles carry a glass pane split into a second material group (see
+  // shapeGeometry.ts): frame → material-0 (family texture), pane → material-1
+  // (transparent glass).
+  const hasGlassPane = stairsGeometry?.userData.hasGlassPane === true;
+
+  // When a texture is present, leave the material color white so the texture
+  // isn't tinted by the (darker) average fallback color. Default FrontSide
+  // (backface culling) — verified visually against all 7 extracted stair meshes
+  // (see the Stairs plan's winding-order callout re: Unity left-handed vs Three
+  // right-handed conversion): the raw OBJ winding already matches Three's
+  // CCW-front convention, no mirroring/inside-out faces, so no DoubleSide needed.
+  const frameMaterial = (
+    <meshStandardMaterial
+      attach={hasGlassPane ? 'material-0' : 'material'}
+      color={map ? '#ffffff' : color}
+      map={map}
+      transparent={opacity < 1}
+      opacity={opacity}
+    />
+  );
+
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, placements.length]}>
       {shape === 'cube' ? (
@@ -81,19 +107,18 @@ function InstancedGroup({
       ) : (
         <primitive object={stairsGeometry!} attach="geometry" />
       )}
-      {/* When a texture is present, leave the material color white so the
-          texture isn't tinted by the (darker) average fallback color.
-          Default FrontSide (backface culling) — verified visually against
-          all 7 extracted stair meshes (see the Stairs plan's winding-order
-          callout re: Unity left-handed vs Three.js right-handed conversion):
-          the raw OBJ winding already matches Three's CCW-front convention,
-          no mirroring/inside-out faces, so no DoubleSide workaround needed. */}
-      <meshStandardMaterial
-        color={map ? '#ffffff' : color}
-        map={map}
-        transparent={opacity < 1}
-        opacity={opacity}
-      />
+      {frameMaterial}
+      {hasGlassPane && (
+        // DoubleSide so the thin pane is visible from both faces through the
+        // openwork frame.
+        <meshStandardMaterial
+          attach="material-1"
+          color={GLASS_PANE_COLOR}
+          transparent
+          opacity={GLASS_PANE_OPACITY}
+          side={THREE.DoubleSide}
+        />
+      )}
     </instancedMesh>
   );
 }
