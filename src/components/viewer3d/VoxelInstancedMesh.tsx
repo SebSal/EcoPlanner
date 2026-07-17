@@ -60,7 +60,14 @@ function InstancedGroup({
       mesh.setMatrixAt(i, matrix);
     });
     mesh.instanceMatrix.needsUpdate = true;
-  }, [placements]);
+    // stairsGeometry is included so this re-runs the first time a non-cube
+    // shape's mesh finishes loading: until then the group renders null (see
+    // below), meshRef.current is null, and this effect bails out early —
+    // without stairsGeometry in the deps, the render where the mesh actually
+    // mounts wouldn't re-run this (placements hasn't changed), leaving that
+    // first instance at the default identity matrix until another placement
+    // change happened to touch it.
+  }, [placements, stairsGeometry]);
 
   // Non-cube shapes load their geometry asynchronously (fetched OBJ, parsed,
   // cached); skip rendering this group until it resolves. This only happens
