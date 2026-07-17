@@ -1,4 +1,4 @@
-import type { BlockTypeId, VoxelDimensions, VoxelGrid } from '../types/voxel';
+import type { SparseVoxel, VoxelCell, VoxelDimensions, VoxelGrid } from '../types/voxel';
 
 // Eco divides the ground into "claims" of CLAIM_SIZE x CLAIM_SIZE blocks.
 export const CLAIM_SIZE = 5;
@@ -45,7 +45,7 @@ export function getCell(
   x: number,
   y: number,
   z: number,
-): BlockTypeId | null {
+): VoxelCell | null {
   if (!inBounds(x, y, z, grid.dimensions)) return null;
   return grid.cells[indexFromCoords(x, y, z, grid.dimensions)];
 }
@@ -55,29 +55,29 @@ export function setCell(
   x: number,
   y: number,
   z: number,
-  value: BlockTypeId | null,
+  value: VoxelCell | null,
 ): void {
   if (!inBounds(x, y, z, grid.dimensions)) return;
   grid.cells[indexFromCoords(x, y, z, grid.dimensions)] = value;
 }
 
+// Counts by blockTypeId only, ignoring shape — this represents "how much
+// material," not "how many stair-shaped pieces."
 export function countBlocksByType(grid: VoxelGrid): Map<string, number> {
   const counts = new Map<string, number>();
-  for (const value of grid.cells) {
-    if (value) counts.set(value, (counts.get(value) ?? 0) + 1);
+  for (const cell of grid.cells) {
+    if (cell) counts.set(cell.blockTypeId, (counts.get(cell.blockTypeId) ?? 0) + 1);
   }
   return counts;
 }
 
-export function gridToSparseBlocks(
-  grid: VoxelGrid,
-): { x: number; y: number; z: number; blockTypeId: string }[] {
-  const blocks: { x: number; y: number; z: number; blockTypeId: string }[] = [];
+export function gridToSparseBlocks(grid: VoxelGrid): SparseVoxel[] {
+  const blocks: SparseVoxel[] = [];
   for (let i = 0; i < grid.cells.length; i++) {
-    const value = grid.cells[i];
-    if (value) {
+    const cell = grid.cells[i];
+    if (cell) {
       const { x, y, z } = coordsFromIndex(i, grid.dimensions);
-      blocks.push({ x, y, z, blockTypeId: value });
+      blocks.push({ x, y, z, blockTypeId: cell.blockTypeId, shape: cell.shape, rotation: cell.rotation });
     }
   }
   return blocks;
@@ -85,11 +85,15 @@ export function gridToSparseBlocks(
 
 export function gridFromSparseBlocks(
   dimensions: VoxelDimensions,
-  blocks: { x: number; y: number; z: number; blockTypeId: string }[],
+  blocks: SparseVoxel[],
 ): VoxelGrid {
   const grid = createEmptyGrid(dimensions);
   for (const block of blocks) {
-    setCell(grid, block.x, block.y, block.z, block.blockTypeId);
+    setCell(grid, block.x, block.y, block.z, {
+      blockTypeId: block.blockTypeId,
+      shape: block.shape,
+      rotation: block.rotation,
+    });
   }
   return grid;
 }

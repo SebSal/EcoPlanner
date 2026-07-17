@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { BlockTypeId, VoxelDimensions, VoxelGrid } from '../types/voxel';
-import type { ProjectFileV1 } from '../types/project';
+import type { BlockTypeId, VoxelCell, VoxelDimensions, VoxelGrid } from '../types/voxel';
+import type { ProjectFileV2 } from '../types/project';
 import { BLOCK_PALETTE } from '../data/blockPalette';
+import { getAvailableShapes, type ShapeId } from '../data/blockShapes';
 import {
   createEmptyGrid,
   getCell,
@@ -26,6 +27,8 @@ interface BuildState {
   };
   ui: {
     selectedBlockId: BlockTypeId;
+    selectedShape: ShapeId;
+    selectedRotation: 0 | 1 | 2 | 3;
     toolMode: ToolMode;
     currentLayerY: number;
     onionSkinEnabled: boolean;
@@ -35,13 +38,15 @@ interface BuildState {
   setLayer(y: number): void;
   goUpLayer(): void;
   setSelectedBlock(id: BlockTypeId): void;
+  setSelectedShape(shape: ShapeId): void;
+  rotateSelection(): void;
   setToolMode(mode: ToolMode): void;
   toggleOnionSkin(): void;
 
   newProject(dimensions: VoxelDimensions, name?: string): void;
   clearGrid(): void;
-  loadProject(data: ProjectFileV1): void;
-  exportProject(): ProjectFileV1;
+  loadProject(data: ProjectFileV2): void;
+  exportProject(): ProjectFileV2;
 }
 
 const DEFAULT_DIMENSIONS: VoxelDimensions = { width: 8, height: 8, depth: 8 };
@@ -58,9 +63,9 @@ function emptyProject(dimensions: VoxelDimensions, name: string) {
   };
 }
 
-function toProjectFile(project: BuildState['project']): ProjectFileV1 {
+function toProjectFile(project: BuildState['project']): ProjectFileV2 {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     name: project.name,
     createdAt: project.createdAt,
     updatedAt: new Date().toISOString(),
@@ -86,6 +91,8 @@ export const useBuildStore = create<BuildState>()(
       : emptyProject(DEFAULT_DIMENSIONS, 'Untitled Build'),
     ui: {
       selectedBlockId: BLOCK_PALETTE[0].id,
+      selectedShape: 'cube',
+      selectedRotation: 0,
       toolMode: 'place',
       currentLayerY: 0,
       onionSkinEnabled: true,
@@ -93,14 +100,21 @@ export const useBuildStore = create<BuildState>()(
 
     paintCell(x, z, allowToggle = false) {
       set((state) => {
-        const { currentLayerY, toolMode, selectedBlockId } = state.ui;
+        const { currentLayerY, toolMode, selectedBlockId, selectedShape, selectedRotation } = state.ui;
         if (toolMode === 'erase') {
           setCell(state.project.grid, x, currentLayerY, z, null);
           return;
         }
         const existing = getCell(state.project.grid, x, currentLayerY, z);
-        const value =
-          allowToggle && existing === selectedBlockId ? null : selectedBlockId;
+        const isSameSelection =
+          existing !== null &&
+          existing.blockTypeId === selectedBlockId &&
+          existing.shape === selectedShape &&
+          existing.rotation === selectedRotation;
+        const value: VoxelCell | null =
+          allowToggle && isSameSelection
+            ? null
+            : { blockTypeId: selectedBlockId, shape: selectedShape, rotation: selectedRotation };
         setCell(state.project.grid, x, currentLayerY, z, value);
       });
     },
@@ -131,6 +145,24 @@ export const useBuildStore = create<BuildState>()(
     setSelectedBlock(id) {
       set((state) => {
         state.ui.selectedBlockId = id;
+        // If the newly selected block doesn't support the currently selected
+        // shape (e.g. switching from Hewn Log/Stairs to Cotton Carpet), fall
+        // back to Cube rather than leaving a shape it can't actually render.
+        if (!getAvailableShapes(id).includes(state.ui.selectedShape)) {
+          state.ui.selectedShape = 'cube';
+        }
+      });
+    },
+
+    setSelectedShape(shape) {
+      set((state) => {
+        state.ui.selectedShape = shape;
+      });
+    },
+
+    rotateSelection() {
+      set((state) => {
+        state.ui.selectedRotation = ((state.ui.selectedRotation + 1) % 4) as 0 | 1 | 2 | 3;
       });
     },
 

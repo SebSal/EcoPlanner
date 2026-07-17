@@ -1,5 +1,6 @@
 import { BlockPalette } from './BlockPalette';
 import { ToolModeToggle } from './ToolModeToggle';
+import { ShapeSelector } from './ShapeSelector';
 import { ExportImportControls } from './ExportImportControls';
 import { ClearButton } from './ClearButton';
 
@@ -19,6 +20,7 @@ export function Toolbar({ onNewProject }: ToolbarProps) {
       <div className="toolbar-section">
         <ToolModeToggle />
         <BlockPalette />
+        <ShapeSelector />
       </div>
       <div className="toolbar-section">
         <ExportImportControls />

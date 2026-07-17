@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Raw extracted game assets (staging input for scripts/build-palette.mjs).
+# Not committed — only the processed output under public/ is.
+/scripts/eco-raw/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

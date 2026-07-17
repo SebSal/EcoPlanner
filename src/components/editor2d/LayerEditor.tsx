@@ -72,17 +72,17 @@ export function LayerEditor() {
       >
         {rows.map((z) =>
           Array.from({ length: dimensions.width }, (_, x) => {
-            const blockId = getCell(grid, x, currentLayerY, z);
-            const belowBlockId =
+            const cell = getCell(grid, x, currentLayerY, z);
+            const belowCell =
               onionSkinEnabled && currentLayerY > 0
                 ? getCell(grid, x, currentLayerY - 1, z)
                 : null;
 
             let background = 'transparent';
-            if (blockId) {
-              background = getBlockColor(blockId);
-            } else if (belowBlockId) {
-              background = getBlockColor(belowBlockId) + '40'; // ~25% alpha
+            if (cell) {
+              background = getBlockColor(cell.blockTypeId);
+            } else if (belowCell) {
+              background = getBlockColor(belowCell.blockTypeId) + '40'; // ~25% alpha
             }
 
             // Heavier borders on interior claim boundaries (every CLAIM_SIZE
@@ -102,7 +102,19 @@ export function LayerEditor() {
                 style={{ background }}
                 onPointerDown={() => beginStroke(x, z)}
                 onPointerEnter={() => extendStroke(x, z)}
-              />
+              >
+                {/* Non-cube shapes have a facing direction that isn't visible
+                    in the 3D view alone (the 2D editor is the only placement
+                    surface) — a small triangle points the way, rotated in
+                    lockstep with the 3D matrix rotation applied in
+                    VoxelInstancedMesh. */}
+                {cell && cell.shape !== 'cube' && (
+                  <span
+                    className="shape-rotation-indicator"
+                    style={{ transform: `translate(-50%, -50%) rotate(${cell.rotation * 90}deg)` }}
+                  />
+                )}
+              </div>
             );
           }),
         )}

@@ -1,69 +1,100 @@
-import { Suspense, useLayoutEffect, useMemo, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { useTexture } from '@react-three/drei';
 import { useBuildStore } from '../../state/useBuildStore';
 import { coordsFromIndex } from '../../lib/voxelGrid';
-import { getBlockColor, getBlockTexture } from '../../data/blockPalette';
+import { getBlockColor, getBlockOpacity, getBlockTexture } from '../../data/blockPalette';
+import { getShapeMeshId, type ShapeId } from '../../data/blockShapes';
+import { useShapeGeometry } from '../../lib/shapeGeometry';
 
-type Position = [number, number, number];
+interface Placement {
+  x: number;
+  y: number;
+  z: number;
+  rotation: 0 | 1 | 2 | 3;
+}
 
-// Shared instanced cubes; the material is supplied by the caller so we can use
-// either a flat color or a texture without duplicating the matrix bookkeeping.
-function InstancedBoxes({
-  positions,
-  children,
+// Textures are shared across every InstancedGroup instance of the same block
+// type (and across re-renders), so cache the loaded THREE.Texture by path.
+const textureCache = new Map<string, THREE.Texture>();
+
+function loadBlockTexture(texturePath: string): THREE.Texture {
+  const cached = textureCache.get(texturePath);
+  if (cached) return cached;
+  const texture = new THREE.TextureLoader().load(texturePath);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  // Nearest-neighbor filtering keeps the blocky, crisp look of Eco's textures
+  // instead of blurring them at typical voxel viewing distances.
+  texture.minFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.NearestFilter;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  textureCache.set(texturePath, texture);
+  return texture;
+}
+
+function InstancedGroup({
+  blockTypeId,
+  shape,
+  placements,
 }: {
-  positions: Position[];
-  children: React.ReactNode;
+  blockTypeId: string;
+  shape: ShapeId;
+  placements: Placement[];
 }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
+  const color = getBlockColor(blockTypeId);
+  const texturePath = getBlockTexture(blockTypeId);
+  const opacity = getBlockOpacity(blockTypeId);
+  const map = useMemo(() => (texturePath ? loadBlockTexture(texturePath) : null), [texturePath]);
+
+  const meshId = getShapeMeshId(blockTypeId, shape);
+  const stairsGeometry = useShapeGeometry(meshId);
 
   useLayoutEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
     const matrix = new THREE.Matrix4();
-    positions.forEach(([x, y, z], i) => {
-      matrix.setPosition(x, y, z);
+    placements.forEach(({ x, y, z, rotation }, i) => {
+      matrix.makeRotationY((rotation * Math.PI) / 2);
+      matrix.setPosition(x, y, z); // only touches the translation column, keeps the rotation set above
       mesh.setMatrixAt(i, matrix);
     });
     mesh.instanceMatrix.needsUpdate = true;
-  }, [positions]);
+    // stairsGeometry is included so this re-runs the first time a non-cube
+    // shape's mesh finishes loading: until then the group renders null (see
+    // below), meshRef.current is null, and this effect bails out early —
+    // without stairsGeometry in the deps, the render where the mesh actually
+    // mounts wouldn't re-run this (placements hasn't changed), leaving that
+    // first instance at the default identity matrix until another placement
+    // change happened to touch it.
+  }, [placements, stairsGeometry]);
+
+  // Non-cube shapes load their geometry asynchronously (fetched OBJ, parsed,
+  // cached); skip rendering this group until it resolves. This only happens
+  // once per mesh id — cached after that.
+  if (shape !== 'cube' && !stairsGeometry) return null;
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, positions.length]}>
-      <boxGeometry args={[1, 1, 1]} />
-      {children}
+    <instancedMesh ref={meshRef} args={[undefined, undefined, placements.length]}>
+      {shape === 'cube' ? (
+        <boxGeometry args={[1, 1, 1]} />
+      ) : (
+        <primitive object={stairsGeometry!} attach="geometry" />
+      )}
+      {/* When a texture is present, leave the material color white so the
+          texture isn't tinted by the (darker) average fallback color.
+          Default FrontSide (backface culling) — verified visually against
+          all 7 extracted stair meshes (see the Stairs plan's winding-order
+          callout re: Unity left-handed vs Three.js right-handed conversion):
+          the raw OBJ winding already matches Three's CCW-front convention,
+          no mirroring/inside-out faces, so no DoubleSide workaround needed. */}
+      <meshStandardMaterial
+        color={map ? '#ffffff' : color}
+        map={map}
+        transparent={opacity < 1}
+        opacity={opacity}
+      />
     </instancedMesh>
-  );
-}
-
-function ColorGroup({ color, positions }: { color: string; positions: Position[] }) {
-  return (
-    <InstancedBoxes positions={positions}>
-      <meshStandardMaterial color={color} />
-    </InstancedBoxes>
-  );
-}
-
-function TexturedGroup({
-  textureUrl,
-  positions,
-}: {
-  textureUrl: string;
-  positions: Position[];
-}) {
-  const texture = useTexture(textureUrl);
-
-  useMemo(() => {
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-  }, [texture]);
-
-  return (
-    <InstancedBoxes positions={positions}>
-      <meshStandardMaterial map={texture} />
-    </InstancedBoxes>
   );
 }
 
@@ -72,41 +103,38 @@ export function VoxelInstancedMesh() {
   const dimensions = useBuildStore((s) => s.project.dimensions);
 
   const groups = useMemo(() => {
-    const byType = new Map<string, Position[]>();
+    const byKey = new Map<
+      string,
+      { blockTypeId: string; shape: ShapeId; placements: Placement[] }
+    >();
     for (let i = 0; i < grid.cells.length; i++) {
-      const blockTypeId = grid.cells[i];
-      if (!blockTypeId) continue;
+      const cell = grid.cells[i];
+      if (!cell) continue;
       const { x, y, z } = coordsFromIndex(i, dimensions);
-      const position: Position = [
-        x - dimensions.width / 2 + 0.5,
+      const position = {
+        x: x - dimensions.width / 2 + 0.5,
         y,
-        z - dimensions.depth / 2 + 0.5,
-      ];
-      const list = byType.get(blockTypeId) ?? [];
-      list.push(position);
-      byType.set(blockTypeId, list);
+        z: z - dimensions.depth / 2 + 0.5,
+        rotation: cell.rotation,
+      };
+      const key = `${cell.blockTypeId}|${cell.shape}`;
+      const group = byKey.get(key) ?? { blockTypeId: cell.blockTypeId, shape: cell.shape, placements: [] };
+      group.placements.push(position);
+      byKey.set(key, group);
     }
-    return Array.from(byType.entries());
+    return Array.from(byKey.entries());
   }, [grid, dimensions]);
 
   return (
     <>
-      {groups.map(([blockTypeId, positions]) => {
-        const color = getBlockColor(blockTypeId);
-        const textureUrl = getBlockTexture(blockTypeId);
-        // Textured blocks fall back to their flat color while the image loads
-        // (and forever, if the block has no texture defined).
-        return textureUrl ? (
-          <Suspense
-            key={blockTypeId}
-            fallback={<ColorGroup color={color} positions={positions} />}
-          >
-            <TexturedGroup textureUrl={textureUrl} positions={positions} />
-          </Suspense>
-        ) : (
-          <ColorGroup key={blockTypeId} color={color} positions={positions} />
-        );
-      })}
+      {groups.map(([key, group]) => (
+        <InstancedGroup
+          key={key}
+          blockTypeId={group.blockTypeId}
+          shape={group.shape}
+          placements={group.placements}
+        />
+      ))}
     </>
   );
 }
