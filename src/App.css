@@ -117,9 +117,12 @@
   color: #fff;
 }
 
-.block-swatch {
+/* Scoped to .toolbar so this beats the generic ".toolbar button" padding/border
+   rules (higher specificity: two classes vs. one class + element). */
+.toolbar .block-swatch {
   width: 34px;
   height: 34px;
+  background: none;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -135,7 +138,8 @@
   pointer-events: none;
 }
 
-.block-swatch.selected {
+.toolbar .block-swatch.selected {
+  border: none;
   box-shadow: 0 0 0 2px var(--accent);
 }
 
