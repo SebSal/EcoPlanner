@@ -37,6 +37,7 @@ interface BuildState {
   paintCell(x: number, z: number, allowToggle?: boolean): void;
   setLayer(y: number): void;
   goUpLayer(): void;
+  copyLayer(direction: 'up' | 'down'): void;
   setSelectedBlock(id: BlockTypeId): void;
   setSelectedShape(shape: ShapeId): void;
   rotateSelection(): void;
@@ -139,6 +140,38 @@ export const useBuildStore = create<BuildState>()(
         state.project.grid = resizeGrid(state.project.grid, newDims);
         state.project.dimensions = newDims;
         state.ui.currentLayerY = height;
+      });
+    },
+
+    copyLayer(direction) {
+      set((state) => {
+        const from = state.ui.currentLayerY;
+        const { width, depth, height } = state.project.dimensions;
+
+        let to: number;
+        if (direction === 'up') {
+          to = from + 1;
+          if (to >= height) {
+            // No layer above yet — grow the build by one (like ▲ Up), same cap.
+            if (height >= MAX_HEIGHT) return;
+            const newDims = { ...state.project.dimensions, height: height + 1 };
+            state.project.grid = resizeGrid(state.project.grid, newDims);
+            state.project.dimensions = newDims;
+          }
+        } else {
+          to = from - 1;
+          if (to < 0) return; // nothing below layer 0
+        }
+
+        // Merge: stamp only the occupied cells onto the target, leaving any
+        // existing target blocks that don't overlap untouched.
+        for (let z = 0; z < depth; z++) {
+          for (let x = 0; x < width; x++) {
+            const cell = getCell(state.project.grid, x, from, z);
+            if (cell) setCell(state.project.grid, x, to, z, { ...cell });
+          }
+        }
+        state.ui.currentLayerY = to;
       });
     },
 
