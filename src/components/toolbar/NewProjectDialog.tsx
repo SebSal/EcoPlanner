@@ -3,7 +3,9 @@ import { useBuildStore } from '../../state/useBuildStore';
 import { CLAIM_SIZE } from '../../lib/voxelGrid';
 
 const MIN_CLAIMS = 1;
-const MAX_CLAIMS = 12; // 12 claims = 60 blocks, within the 64-block grid cap
+// Just a sanity cap so a stray keystroke can't request a multi-thousand-block
+// grid; 40 claims = 200 blocks per axis, well beyond typical builds.
+const MAX_CLAIMS = 40;
 
 interface NewProjectDialogProps {
   isOpen: boolean;
