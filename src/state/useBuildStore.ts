@@ -179,10 +179,13 @@ export const useBuildStore = create<BuildState>()(
       set((state) => {
         state.ui.selectedBlockId = id;
         // If the newly selected block doesn't support the currently selected
-        // shape (e.g. switching from Hewn Log/Stairs to Cotton Carpet), fall
-        // back to Cube rather than leaving a shape it can't actually render.
-        if (!getAvailableShapes(id).includes(state.ui.selectedShape)) {
-          state.ui.selectedShape = 'cube';
+        // shape (e.g. switching from Hewn Log/Stairs to Cotton Carpet, or to
+        // a pipe block which only ever supports 'pipe', never 'cube'), fall
+        // back to that block's first available shape rather than leaving a
+        // shape it can't actually render.
+        const available = getAvailableShapes(id);
+        if (!available.includes(state.ui.selectedShape)) {
+          state.ui.selectedShape = available[0];
         }
       });
     },

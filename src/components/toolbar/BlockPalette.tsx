@@ -5,10 +5,12 @@ import { useBuildStore } from '../../state/useBuildStore';
 
 // Preview a block with its actual surface texture, falling back to the inventory
 // icon (e.g. untextured glass) and, under that, the flat color on the swatch.
+// `preferIconInPicker` flips that order for blocks whose extracted texture is
+// a good tileable 3D surface but a poor standalone picture (e.g. Pipes).
 function BlockPreview({ block }: { block: BlockType }) {
-  return (
-    <img src={getBlockTexture(block.id) ?? getBlockIcon(block.id)} alt="" draggable={false} />
-  );
+  const icon = getBlockIcon(block.id); // always defined
+  const src = block.preferIconInPicker ? icon : (getBlockTexture(block.id) ?? icon);
+  return <img src={src} alt="" draggable={false} />;
 }
 
 function Swatch({

@@ -74,6 +74,11 @@ export const BLOCK_GROUPS: BlockGroup[] = [
     label: 'Road',
     memberIds: ['dirt_road', 'stone_road', 'asphalt_road'],
   },
+  {
+    id: 'pipe',
+    label: 'Pipe',
+    memberIds: ['iron_pipe', 'steel_pipe', 'copper_pipe'],
+  },
 ];
 
 const groupByMemberId = new Map<string, BlockGroup>();

@@ -44,3 +44,42 @@ See `scripts/build-palette.mjs` for the reproducible processing pipeline
 generation) that turns raw extracted images into what ships in this repo, and
 `scripts/build-shapes.mjs` for the equivalent (much simpler — OBJ text is
 used as-is) pipeline for shape meshes.
+
+### Pipes (Iron/Steel/Copper)
+
+Pipes are not part of the Forms.cs shape catalog above — in Eco they're a
+distinct `PipeBlock` system whose appearance is driven by a per-metal,
+~24-variant neighbor-connectivity mesh table (which junction/corner/T/cross
+mesh to show, keyed off which of the 6 axis directions has an adjacent
+pipe). Icons were extracted the same way as other blocks (`IronPipeItem`,
+`SteelPipeItem`, `CopperPipeItem` sprites).
+
+7 of the real meshes per metal are extracted and shipped — the ones covering
+every purely-horizontal or purely-vertical connectivity case (`P_Solo`,
+`P_Straight_Simple`, `P_Straight_Onecap`, `P_Bend`, `P_T`, `P_Cross`,
+`P_Vert`), resolved the same GameObject/`usageCases` way as every other
+shape, then rotated at render time in `PipeInstancedMesh.tsx` to match each
+cell's actual live neighbors (which of the 4 horizontal or 2 vertical
+directions have an adjacent pipe) — same "our own connectivity rule using
+Eco's real meshes" approach as the paused Wall/Column plan, not a byte-exact
+reproduction of Eco's internal condition DSL. Each mesh's true open-port
+direction(s) were verified from its actual geometry (a boundary-edge
+analysis on welded vertices — which end is watertight vs. an open ring —
+not assumed from its bounding box). The remaining ~17 variants per metal
+(junctions that are *also* connected vertically, e.g. a bend that goes up)
+aren't extracted yet; those cells fall back to the older procedural
+approximation (a hub + one full-length cylinder per connected axis, meeting
+flush but without a mitered bend) until full 3D combination coverage is
+built.
+
+Surface texture: the real junction meshes' baked UVs address a shared
+`Pipes_Albedo` atlas (each metal's mesh points at a different region of the
+same texture — all three metals' `Pipe Blocks` registry entries point at the
+exact same "Pipes" Material, so there's no per-metal Material-level
+distinction at all), shipped once, uncropped, as `public/textures/
+pipes_atlas.png`. The procedural-fallback path uses a separate, smaller
+per-metal crop instead (`public/textures/blocks/{iron,steel,copper}_pipe.png`
+— a clean plain-surface sub-region of each metal's own atlas area, avoiding
+baked valve/flange/bolt decal detail nearby that isn't meant to tile), since
+its simple cylinders use plain 0..1 UVs rather than the atlas's real
+coordinates.

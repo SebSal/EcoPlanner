@@ -5,6 +5,11 @@ export interface BlockType {
   name: string;
   color: string; // hex fallback (average color of the texture, or of the icon if untextured)
   texture?: string; // path under /public to a tiling surface texture; optional
+  // When true, the block picker prefers the inventory icon over the surface
+  // texture for its preview swatch — for blocks whose extracted texture is a
+  // good tileable 3D surface but a poor standalone picture (e.g. Pipes: a
+  // plain metal swatch, vs. a clean IronPipeItem-style icon).
+  preferIconInPicker?: boolean;
   opacity?: number; // 0-1; 3D-only, e.g. for glass. Defaults to fully opaque (1) when omitted.
 }
 
@@ -49,6 +54,9 @@ export const BLOCK_PALETTE: BlockType[] = [
   { id: 'asphalt_road', name: 'Asphalt Road', color: '#5e5d5e', texture: '/textures/blocks/asphalt_road.png' },
   { id: 'glass', name: 'Glass', color: '#8fcce6', opacity: 0.5 },
   { id: 'framed_glass', name: 'Framed Glass', color: '#8fcce6', texture: '/textures/blocks/framed_glass.png', opacity: 0.7 },
+  { id: 'iron_pipe', name: 'Iron Pipe', color: '#626a76', texture: '/textures/blocks/iron_pipe.png', preferIconInPicker: true },
+  { id: 'steel_pipe', name: 'Steel Pipe', color: '#8d9496', texture: '/textures/blocks/steel_pipe.png', preferIconInPicker: true },
+  { id: 'copper_pipe', name: 'Copper Pipe', color: '#ac5b31', texture: '/textures/blocks/copper_pipe.png', preferIconInPicker: true },
 ];
 
 export const DEFAULT_BLOCK_COLOR = '#e05fd0'; // fallback for unknown blockTypeId on import
