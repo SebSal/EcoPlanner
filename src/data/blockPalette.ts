@@ -5,6 +5,20 @@ export interface BlockType {
   name: string;
   color: string; // hex fallback (average color of the texture, or of the icon if untextured)
   texture?: string; // path under /public to a tiling surface texture; optional
+  // Path to a distinct top/bottom-face texture for the 'floor' shape, when the
+  // block's in-game Floor material genuinely differs from its Cube/side
+  // texture (verified per-family via the game's own Material bindings, not
+  // assumed — see build-palette.mjs's BLOCKS comment). Falls back to
+  // `texture` on every face when omitted, which is correct for every family
+  // except Brick so far.
+  floorTopTexture?: string;
+  // [x, y] UV repeat scale for `texture` on box-rendered faces (Cube, and
+  // Floor's side faces), correcting for our plain 0..1 box UVs vs Eco's real
+  // Cube mesh, which only ever samples a small crop of the source texture
+  // per face. Verified per-material from that real mesh's own baked UV span
+  // — not guessed — so this is only present where confirmed; every material
+  // without it renders at the original (pre-fix) 1:1 scale, unchanged.
+  textureRepeat?: [number, number];
   // When true, the block picker prefers the inventory icon over the surface
   // texture for its preview swatch — for blocks whose extracted texture is a
   // good tileable 3D surface but a poor standalone picture (e.g. Pipes: a
@@ -20,7 +34,7 @@ export const BLOCK_PALETTE: BlockType[] = [
   { id: 'ashlar_limestone', name: 'Ashlar Limestone', color: '#cfcdb8', texture: '/textures/blocks/ashlar_limestone.png' },
   { id: 'ashlar_sandstone', name: 'Ashlar Sandstone', color: '#c27640', texture: '/textures/blocks/ashlar_sandstone.png' },
   { id: 'ashlar_shale', name: 'Ashlar Shale', color: '#393e3f', texture: '/textures/blocks/ashlar_shale.png' },
-  { id: 'brick', name: 'Brick', color: '#974327', texture: '/textures/blocks/brick.png' },
+  { id: 'brick', name: 'Brick', color: '#974327', texture: '/textures/blocks/brick.png', floorTopTexture: '/textures/blocks/brick_floor_top.png', textureRepeat: [0.279, 0.295] },
   { id: 'adobe', name: 'Adobe', color: '#735a34', texture: '/textures/blocks/adobe.png' },
   { id: 'hewn_log', name: 'Hewn Log', color: '#ca9a63', texture: '/textures/blocks/hewn_log.png' },
   { id: 'hardwood_hewn_log', name: 'Hardwood Hewn Log', color: '#b88f66', texture: '/textures/blocks/hardwood_hewn_log.png' },
@@ -78,6 +92,19 @@ export function getBlockTexture(blockTypeId: string): string | undefined {
 
 export function getBlockIcon(blockTypeId: string): string {
   return `${import.meta.env.BASE_URL}icons/blocks/${blockTypeId}.png`;
+}
+
+// undefined unless this block has a genuinely distinct top/bottom-face
+// texture for the 'floor' shape — falls back to getBlockTexture() otherwise.
+export function getBlockFloorTopTexture(blockTypeId: string): string | undefined {
+  const texture = BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.floorTopTexture;
+  return texture ? import.meta.env.BASE_URL + texture.replace(/^\/+/, '') : undefined;
+}
+
+// [1, 1] (i.e. no change) unless a verified scale exists for this block — see
+// BlockType.textureRepeat's doc comment.
+export function getBlockTextureRepeat(blockTypeId: string): [number, number] {
+  return BLOCK_PALETTE.find((b) => b.id === blockTypeId)?.textureRepeat ?? [1, 1];
 }
 
 export function getBlockOpacity(blockTypeId: string): number {
