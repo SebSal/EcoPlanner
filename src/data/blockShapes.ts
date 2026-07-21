@@ -923,6 +923,14 @@ export function getShapeMeshPath(meshId: string): string {
   return `${import.meta.env.BASE_URL}meshes/${meshId}.obj`;
 }
 
+// The material family for a block id (e.g. 'ashlar_granite' -> 'ashlar'), or
+// undefined for blocks outside the shape-family catalog. Used to locate the
+// per-family wall junction meshes ({family}_wall / _wallcorner / _wallt /
+// _wallx) in WallInstancedMesh.
+export function getBlockFamily(blockId: string): string | undefined {
+  return BLOCK_FAMILY[blockId];
+}
+
 export function getShapeLabel(shape: ShapeId): string {
   return SHAPE_LABELS[shape] ?? shape.replace(/([A-Z])/g, ' $1').trim();
 }
