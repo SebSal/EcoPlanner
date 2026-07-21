@@ -2,7 +2,13 @@ import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useBuildStore } from '../../state/useBuildStore';
 import { coordsFromIndex } from '../../lib/voxelGrid';
-import { getBlockColor, getBlockOpacity, getBlockTexture } from '../../data/blockPalette';
+import {
+  getBlockColor,
+  getBlockFloorTopTexture,
+  getBlockOpacity,
+  getBlockTexture,
+  getBlockTextureRepeat,
+} from '../../data/blockPalette';
 import { getShapeMeshId, type ShapeId } from '../../data/blockShapes';
 import { useShapeGeometry } from '../../lib/shapeGeometry';
 import { loadBlockTexture } from '../../lib/blockTexture';
@@ -32,7 +38,26 @@ function InstancedGroup({
   const color = getBlockColor(blockTypeId);
   const texturePath = getBlockTexture(blockTypeId);
   const opacity = getBlockOpacity(blockTypeId);
-  const map = useMemo(() => (texturePath ? loadBlockTexture(texturePath) : null), [texturePath]);
+  // Only box-rendered faces (Cube, Floor's sides) need the verified repeat
+  // scale — real extracted meshes (Stairs, Wall, ...) already bake their own
+  // correct scale into their UVs, so applying it there would double it up.
+  const isBoxShape = shape === 'cube' || shape === 'floor';
+  const textureRepeat = isBoxShape ? getBlockTextureRepeat(blockTypeId) : ([1, 1] as [number, number]);
+  const map = useMemo(
+    () => (texturePath ? loadBlockTexture(texturePath, textureRepeat) : null),
+    [texturePath, textureRepeat[0], textureRepeat[1]],
+  );
+
+  // Only 'floor' ever needs a distinct top/bottom texture — verified per
+  // family via the game's own Floor Material bindings (Brick's Floor has its
+  // own herringbone `_TopTex`; every other checked family's Floor material
+  // either doesn't exist or is identical to the side texture already used
+  // above). undefined here means "use the same texture on every face."
+  const floorTopTexturePath = shape === 'floor' ? getBlockFloorTopTexture(blockTypeId) : undefined;
+  const floorTopMap = useMemo(
+    () => (floorTopTexturePath ? loadBlockTexture(floorTopTexturePath) : null),
+    [floorTopTexturePath],
+  );
 
   const meshId = getShapeMeshId(blockTypeId, shape);
   const stairsGeometry = useShapeGeometry(meshId);
@@ -59,7 +84,6 @@ function InstancedGroup({
   // Non-cube, non-floor shapes load their geometry asynchronously (fetched
   // OBJ, parsed, cached); skip rendering this group until it resolves. This
   // only happens once per mesh id — cached after that.
-  const isBoxShape = shape === 'cube' || shape === 'floor';
   if (!isBoxShape && !stairsGeometry) return null;
 
   // Window grilles carry a glass pane split into a second material group (see
@@ -82,6 +106,26 @@ function InstancedGroup({
       opacity={opacity}
     />
   );
+
+  // BoxGeometry always has 6 per-face groups (material indices 0-5, in the
+  // fixed order +X -X +Y(top) -Y(bottom) +Z -Z) regardless of whether one or
+  // several materials are supplied — a single material just gets used for
+  // every group. When Floor has a distinct top/bottom texture, supply all 6
+  // explicitly so the top/bottom groups (2 and 3) get the floor-specific
+  // material and the four side groups keep the normal one.
+  if (isBoxShape && floorTopMap) {
+    return (
+      <instancedMesh ref={meshRef} args={[undefined, undefined, placements.length]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial attach="material-0" color={map ? '#ffffff' : color} map={map} />
+        <meshStandardMaterial attach="material-1" color={map ? '#ffffff' : color} map={map} />
+        <meshStandardMaterial attach="material-2" color="#ffffff" map={floorTopMap} />
+        <meshStandardMaterial attach="material-3" color="#ffffff" map={floorTopMap} />
+        <meshStandardMaterial attach="material-4" color={map ? '#ffffff' : color} map={map} />
+        <meshStandardMaterial attach="material-5" color={map ? '#ffffff' : color} map={map} />
+      </instancedMesh>
+    );
+  }
 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, placements.length]}>
