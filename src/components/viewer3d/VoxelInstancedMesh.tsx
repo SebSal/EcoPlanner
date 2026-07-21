@@ -5,6 +5,7 @@ import { coordsFromIndex } from '../../lib/voxelGrid';
 import { getBlockColor, getBlockOpacity, getBlockTexture } from '../../data/blockPalette';
 import { getShapeMeshId, type ShapeId } from '../../data/blockShapes';
 import { useShapeGeometry } from '../../lib/shapeGeometry';
+import { loadBlockTexture } from '../../lib/blockTexture';
 
 interface Placement {
   x: number;
@@ -17,25 +18,6 @@ interface Placement {
 // opacity so grille glass matches standalone glass.
 const GLASS_PANE_COLOR = getBlockColor('glass');
 const GLASS_PANE_OPACITY = getBlockOpacity('glass');
-
-// Textures are shared across every InstancedGroup instance of the same block
-// type (and across re-renders), so cache the loaded THREE.Texture by path.
-const textureCache = new Map<string, THREE.Texture>();
-
-function loadBlockTexture(texturePath: string): THREE.Texture {
-  const cached = textureCache.get(texturePath);
-  if (cached) return cached;
-  const texture = new THREE.TextureLoader().load(texturePath);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  // Nearest-neighbor filtering keeps the blocky, crisp look of Eco's textures
-  // instead of blurring them at typical voxel viewing distances.
-  texture.minFilter = THREE.NearestFilter;
-  texture.magFilter = THREE.NearestFilter;
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  textureCache.set(texturePath, texture);
-  return texture;
-}
 
 function InstancedGroup({
   blockTypeId,

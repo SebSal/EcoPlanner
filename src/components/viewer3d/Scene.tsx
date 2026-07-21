@@ -3,6 +3,7 @@ import { Grid, OrbitControls } from '@react-three/drei';
 import { useBuildStore } from '../../state/useBuildStore';
 import { CLAIM_SIZE } from '../../lib/voxelGrid';
 import { VoxelInstancedMesh } from './VoxelInstancedMesh';
+import { PipeInstancedMesh } from './PipeInstancedMesh';
 
 export function Scene() {
   const dimensions = useBuildStore((s) => s.project.dimensions);
@@ -27,6 +28,7 @@ export function Scene() {
         fadeDistance={maxDim * 6}
       />
       <VoxelInstancedMesh />
+      <PipeInstancedMesh />
       <OrbitControls makeDefault />
     </Canvas>
   );

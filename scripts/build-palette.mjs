@@ -90,6 +90,30 @@ const BLOCKS = [
   // both are pinned to a blue tint instead of computed.
   { id: 'glass', name: 'Glass', texture: false, opacity: 0.5, color: '#8fcce6' },
   { id: 'framed_glass', name: 'Framed Glass', texture: true, opacity: 0.7, color: '#8fcce6' },
+  // Pipes aren't part of the Forms.cs wall/stairs/roof shape catalog — in
+  // Eco they're their own PipeBlock system with a neighbor-connectivity mesh
+  // selection table (25 usageCase variants per metal, keyed off which of the
+  // 6 axis directions has an adjacent pipe/PipeSlot). We reproduce the
+  // connectivity behavior procedurally (see PipeInstancedMesh.tsx) rather
+  // than extracting/maintaining ~75 discrete junction meshes.
+  //
+  // All three metals' Pipe Blocks registry entries point at the exact same
+  // shared "Pipes" Material (verified directly, not assumed) — so there's no
+  // per-metal Material-level color/texture distinction at all. The actual
+  // per-metal look instead comes from each metal's real pipe mesh sampling a
+  // *different region* of that one shared "Pipes_Albedo" atlas (Iron/Steel
+  // both land in grey regions at different atlas positions, Copper's lands
+  // squarely in a distinct orange/copper region) — same "mesh UV position
+  // determines the visual" pattern used everywhere else in this pipeline.
+  // Cropped a clean plain-surface sub-region from each metal's real
+  // UV-referenced area (avoiding baked valve/flange/bolt detail elsewhere in
+  // that same region, which isn't meant to tile). That crop is a good
+  // tileable 3D surface but a poor standalone picture — `preferIconInPicker`
+  // keeps the block picker showing the clean IronPipeItem-style inventory
+  // icon instead of the texture crop BlockPalette would otherwise prefer.
+  { id: 'iron_pipe', name: 'Iron Pipe', texture: true, preferIconInPicker: true },
+  { id: 'steel_pipe', name: 'Steel Pipe', texture: true, preferIconInPicker: true },
+  { id: 'copper_pipe', name: 'Copper Pipe', texture: true, preferIconInPicker: true },
 ];
 
 function toHex(r, g, b) {
@@ -169,6 +193,7 @@ async function main() {
       name: block.name,
       color,
       texture: texturePath,
+      preferIconInPicker: block.preferIconInPicker,
       opacity: block.opacity,
     });
     console.log(
@@ -176,9 +201,24 @@ async function main() {
     );
   }
 
+  // The Pipes atlas is shared across all 3 metals' real junction meshes
+  // (Solo/Straight/Bend/T/Cross/Vert — see PipeInstancedMesh.tsx) rather than
+  // per-block like everything else above: each metal's mesh has its own
+  // baked UVs pointing at a different region of this one texture, so it
+  // needs shipping uncropped/unscaled, not through the per-block pipeline.
+  const pipesAtlasFile = 'pipes_atlas.png';
+  if (rawTextureFiles.has(pipesAtlasFile)) {
+    const atlasBuffer = await readFile(path.join(RAW_TEXTURES_DIR, pipesAtlasFile));
+    const atlasOut = await sharp(atlasBuffer).png({ compressionLevel: 9 }).toBuffer();
+    await mkdir(path.join(ROOT, 'public/textures'), { recursive: true });
+    await writeFile(path.join(ROOT, 'public/textures', pipesAtlasFile), atlasOut);
+    console.log(`Wrote shared ${pipesAtlasFile}`);
+  }
+
   const lines = entries.map((e) => {
     const fields = [`id: '${e.id}'`, `name: '${e.name}'`, `color: '${e.color}'`];
     if (e.texture) fields.push(`texture: '${e.texture}'`);
+    if (e.preferIconInPicker) fields.push(`preferIconInPicker: true`);
     if (e.opacity !== undefined) fields.push(`opacity: ${e.opacity}`);
     return `  { ${fields.join(', ')} },`;
   });
@@ -190,6 +230,11 @@ export interface BlockType {
   name: string;
   color: string; // hex fallback (average color of the texture, or of the icon if untextured)
   texture?: string; // path under /public to a tiling surface texture; optional
+  // When true, the block picker prefers the inventory icon over the surface
+  // texture for its preview swatch — for blocks whose extracted texture is a
+  // good tileable 3D surface but a poor standalone picture (e.g. Pipes: a
+  // plain metal swatch, vs. a clean IronPipeItem-style icon).
+  preferIconInPicker?: boolean;
   opacity?: number; // 0-1; 3D-only, e.g. for glass. Defaults to fully opaque (1) when omitted.
 }
 
