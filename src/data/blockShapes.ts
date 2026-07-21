@@ -886,18 +886,35 @@ const SHAPE_LABELS: Record<string, string> = {
   "whiteramplined": "White Ramp Line D",
   "edgewallturn": "Edge Wall Turn",
   "thinwallcorner": "Thin Wall Corner",
-  "thinwallstraight": "Thin Wall Straight"
+  "thinwallstraight": "Thin Wall Straight",
+  "pipe": "Pipe"
+};
+
+// Blocks with a fixed shape list outside the Forms.cs family/mesh catalog
+// entirely — currently just pipes, which use their own neighbor-connectivity
+// procedural renderer (PipeInstancedMesh.tsx) instead of an extracted mesh.
+const EXTRA_BLOCK_SHAPES: Record<string, ShapeId[]> = {
+  iron_pipe: ['pipe'],
+  steel_pipe: ['pipe'],
+  copper_pipe: ['pipe'],
 };
 
 export function getAvailableShapes(blockId: string): ShapeId[] {
+  const extra = EXTRA_BLOCK_SHAPES[blockId];
+  if (extra) return extra;
   const family = BLOCK_FAMILY[blockId];
   return family ? FAMILY_SHAPES[family] : ['cube'];
 }
 
-// undefined for 'cube' (it uses the shared boxGeometry, no mesh file) or for
-// a block/shape combination with no extracted mesh.
+// undefined for 'cube', 'floor', or 'pipe' (none use a mesh file: cube/floor
+// share the boxGeometry — a placed Floor fills the whole block footprint in
+// every family, so it renders identically to Cube rather than using its own
+// mesh's UVs, which are calibrated against Eco's original texture atlas and
+// don't line up with our single-tile extracted crop — and pipe is built
+// procedurally per PipeInstancedMesh.tsx) or for a block/shape combination
+// with no extracted mesh.
 export function getShapeMeshId(blockId: string, shape: ShapeId): string | undefined {
-  if (shape === 'cube') return undefined;
+  if (shape === 'cube' || shape === 'floor' || shape === 'pipe') return undefined;
   const family = BLOCK_FAMILY[blockId];
   return family ? FAMILY_SHAPE_MESH[family]?.[shape] : undefined;
 }

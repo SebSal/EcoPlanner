@@ -76,7 +76,7 @@ export function ShapeSelector() {
           ))}
         </div>
       )}
-      {selectedShape !== 'cube' && (
+      {selectedShape !== 'cube' && selectedShape !== 'floor' && (
         // The arrow points the current facing and spins as you rotate (click or
         // R key) — same up=0 / counter-clockwise convention as the 2D grid's
         // per-cell facing arrows so the two read consistently.
