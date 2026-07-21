@@ -40,6 +40,7 @@ export const BLOCK_PALETTE: BlockType[] = [
   { id: 'mortared_sandstone', name: 'Mortared Sandstone', color: '#c18460', texture: '/textures/blocks/mortared_sandstone.png' },
   { id: 'reinforced_concrete', name: 'Reinforced Concrete', color: '#929592', texture: '/textures/blocks/reinforced_concrete.png' },
   { id: 'flat_steel', name: 'Flat Steel', color: '#a7a8a7', texture: '/textures/blocks/flat_steel.png' },
+  { id: 'corrugated_steel', name: 'Corrugated Steel', color: '#4a6280', texture: '/textures/blocks/corrugated_steel.png' },
   { id: 'carpet_cotton', name: 'Cotton Carpet', color: '#a18e46', texture: '/textures/blocks/carpet_cotton.png' },
   { id: 'carpet_nylon', name: 'Nylon Carpet', color: '#6885a1', texture: '/textures/blocks/carpet_nylon.png' },
   { id: 'carpet_wool', name: 'Wool Carpet', color: '#a5936a', texture: '/textures/blocks/carpet_wool.png' },

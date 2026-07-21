@@ -66,6 +66,7 @@ const BLOCKS = [
   { id: 'mortared_sandstone', name: 'Mortared Sandstone', texture: true },
   { id: 'reinforced_concrete', name: 'Reinforced Concrete', texture: true },
   { id: 'flat_steel', name: 'Flat Steel', texture: true },
+  { id: 'corrugated_steel', name: 'Corrugated Steel', texture: true },
   // Carpet's surface texture is a desaturated "tintable" base meant to be
   // dyed in-game; it averages to near-gray and doesn't read as the actual
   // carpet color. `color` here is a fixed override sampled from the top face

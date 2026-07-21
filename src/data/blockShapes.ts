@@ -298,6 +298,32 @@ const FAMILY_SHAPES: Record<string, ShapeId[]> = {
     "window",
     "windowcorners"
   ],
+  "corrugatedsteel": [
+    "cube",
+    "wall",
+    "roof",
+    "roofcorner",
+    "roofpeak",
+    "roofpeakset",
+    "roofturn",
+    "roofside",
+    "roofcube",
+    "column",
+    "window",
+    "doublewindow",
+    "fence",
+    "stairs",
+    "stairscorner",
+    "stairsturn",
+    "floatstairs",
+    "floatstairscorner",
+    "floatstairsturn",
+    "basicslopeside",
+    "basicslopepoint",
+    "underslopeside",
+    "underslopepeak",
+    "floor"
+  ],
   "carpet": [
     "cube",
     "floor",
@@ -651,6 +677,31 @@ const FAMILY_SHAPE_MESH: Record<string, Record<string, string>> = {
     "stairs": "mortaredstone_stairs",
     "wall": "mortaredstone_wall",
     "windowgrilles": "mortaredstone_windowgrilles"
+  },
+  "corrugatedsteel": {
+    "wall": "corrugatedsteel_wall",
+    "roof": "corrugatedsteel_roof",
+    "roofcorner": "corrugatedsteel_roofcorner",
+    "roofpeak": "corrugatedsteel_roofpeak",
+    "roofpeakset": "corrugatedsteel_roofpeakset",
+    "roofturn": "corrugatedsteel_roofturn",
+    "roofside": "corrugatedsteel_roofside",
+    "roofcube": "corrugatedsteel_roofcube",
+    "column": "corrugatedsteel_column",
+    "window": "corrugatedsteel_window",
+    "doublewindow": "corrugatedsteel_doublewindow",
+    "fence": "corrugatedsteel_fence",
+    "stairs": "corrugatedsteel_stairs",
+    "stairscorner": "corrugatedsteel_stairscorner",
+    "stairsturn": "corrugatedsteel_stairsturn",
+    "floatstairs": "corrugatedsteel_floatstairs",
+    "floatstairscorner": "corrugatedsteel_floatstairscorner",
+    "floatstairsturn": "corrugatedsteel_floatstairsturn",
+    "basicslopeside": "corrugatedsteel_basicslopeside",
+    "basicslopepoint": "corrugatedsteel_basicslopepoint",
+    "underslopeside": "corrugatedsteel_underslopeside",
+    "underslopepeak": "corrugatedsteel_underslopepeak",
+    "floor": "corrugatedsteel_floor"
   }
 };
 
@@ -694,7 +745,8 @@ const BLOCK_FAMILY: Record<string, string> = {
   "mortared_stone": "mortaredstone",
   "mortared_granite": "mortaredstone",
   "mortared_limestone": "mortaredstone",
-  "mortared_sandstone": "mortaredstone"
+  "mortared_sandstone": "mortaredstone",
+  "corrugated_steel": "corrugatedsteel"
 };
 
 // shape id -> humanized label for the UI, e.g. "roofcorner" -> "Roof Corner".
