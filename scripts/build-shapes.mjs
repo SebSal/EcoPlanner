@@ -61,6 +61,8 @@ const FAMILY_SHAPE_CATALOG = {
     'Cube FenceCorner FenceEnd FenceMid FenceSolo FenceT FenceX Floor Ladder RoofCorner RoofEnd RoofFill RoofMid RoofSolo RoofT RoofX StairsCorner StairsEndLeft StairsEndRight StairsMid StairsSolo StairsTurn UnderSlopeSide WallCorner WallEnd WallMid WallSolo WallT WallX Window',
   flatsteel:
     'BasicSlopeCorner BasicSlopePoint BasicSlopeSide BasicSlopeTurn Column Cube DoubleWindow Fence FlatRoof FloatStairs FloatStairsCorner FloatStairsTurn Floor Ladder PeakSet Roof RoofCorner RoofCube RoofPeak RoofPeakSet RoofSide RoofTurn ThinColumn UnderInnerPeak UnderPeakSet UnderSlopeCorner UnderSlopePeak UnderSlopeSide UnderSlopeTurn Wall Window WindowCorners',
+  corrugatedsteel:
+    'BasicSlopePoint BasicSlopeSide Column Cube DoubleWindow Fence FlatRoof FloatStairs FloatStairsCorner FloatStairsTurn Floor Ladder RoadBarrier Roof RoofCorner RoofCube RoofPeak RoofPeakSet RoofSide RoofTurn Stairs StairsCorner StairsTurn UnderSlopePeak UnderSlopeSide Wall Window',
   carpet: 'CanopyWindow Cube Floor FullWall SimpleFloor',
   stone_road: 'Cube RampA RampB RampC RampD',
   asphalt_road:
