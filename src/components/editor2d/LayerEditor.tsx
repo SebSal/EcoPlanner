@@ -207,7 +207,7 @@ export function LayerEditor() {
                     surface) — a small triangle points the way, rotated in
                     lockstep with the 3D matrix rotation applied in
                     VoxelInstancedMesh. */}
-                {cell && cell.shape !== 'cube' && (
+                {cell && cell.shape !== 'cube' && cell.shape !== 'floor' && (
                   <span
                     className="shape-rotation-indicator"
                     // Negative so the arrow spins counter-clockwise to match the

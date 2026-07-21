@@ -74,10 +74,11 @@ function InstancedGroup({
     // change happened to touch it.
   }, [placements, stairsGeometry]);
 
-  // Non-cube shapes load their geometry asynchronously (fetched OBJ, parsed,
-  // cached); skip rendering this group until it resolves. This only happens
-  // once per mesh id — cached after that.
-  if (shape !== 'cube' && !stairsGeometry) return null;
+  // Non-cube, non-floor shapes load their geometry asynchronously (fetched
+  // OBJ, parsed, cached); skip rendering this group until it resolves. This
+  // only happens once per mesh id — cached after that.
+  const isBoxShape = shape === 'cube' || shape === 'floor';
+  if (!isBoxShape && !stairsGeometry) return null;
 
   // Window grilles carry a glass pane split into a second material group (see
   // shapeGeometry.ts): frame → material-0 (family texture), pane → material-1
@@ -102,7 +103,7 @@ function InstancedGroup({
 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, placements.length]}>
-      {shape === 'cube' ? (
+      {isBoxShape ? (
         <boxGeometry args={[1, 1, 1]} />
       ) : (
         <primitive object={stairsGeometry!} attach="geometry" />
