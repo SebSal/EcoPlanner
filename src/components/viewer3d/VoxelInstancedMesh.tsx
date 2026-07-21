@@ -162,9 +162,10 @@ export function VoxelInstancedMesh() {
     for (let i = 0; i < grid.cells.length; i++) {
       const cell = grid.cells[i];
       if (!cell) continue;
-      // Walls are rendered by the neighbor-aware WallInstancedMesh, pipes by
-      // PipeInstancedMesh — skip both here so they aren't double-drawn.
-      if (cell.shape === 'wall' || cell.shape === 'pipe') continue;
+      // Walls/columns are rendered by their neighbor-aware meshes
+      // (Wall/ColumnInstancedMesh), pipes by PipeInstancedMesh — skip them here
+      // so they aren't double-drawn.
+      if (cell.shape === 'wall' || cell.shape === 'column' || cell.shape === 'pipe') continue;
       const { x, y, z } = coordsFromIndex(i, dimensions);
       const position = {
         x: x - dimensions.width / 2 + 0.5,
