@@ -141,13 +141,10 @@ const BLOCKS = [
   // determines the visual" pattern used everywhere else in this pipeline.
   // Cropped a clean plain-surface sub-region from each metal's real
   // UV-referenced area (avoiding baked valve/flange/bolt detail elsewhere in
-  // that same region, which isn't meant to tile). That crop is a good
-  // tileable 3D surface but a poor standalone picture — `preferIconInPicker`
-  // keeps the block picker showing the clean IronPipeItem-style inventory
-  // icon instead of the texture crop BlockPalette would otherwise prefer.
-  { id: 'iron_pipe', name: 'Iron Pipe', texture: true, preferIconInPicker: true },
-  { id: 'steel_pipe', name: 'Steel Pipe', texture: true, preferIconInPicker: true },
-  { id: 'copper_pipe', name: 'Copper Pipe', texture: true, preferIconInPicker: true },
+  // that same region, which isn't meant to tile).
+  { id: 'iron_pipe', name: 'Iron Pipe', texture: true },
+  { id: 'steel_pipe', name: 'Steel Pipe', texture: true },
+  { id: 'copper_pipe', name: 'Copper Pipe', texture: true },
 ];
 
 function toHex(r, g, b) {
@@ -247,7 +244,6 @@ async function main() {
       texture: texturePath,
       floorTopTexture: floorTopTexturePath,
       textureRepeat: block.textureRepeat,
-      preferIconInPicker: block.preferIconInPicker,
       opacity: block.opacity,
     });
     console.log(
@@ -274,7 +270,6 @@ async function main() {
     if (e.texture) fields.push(`texture: '${e.texture}'`);
     if (e.floorTopTexture) fields.push(`floorTopTexture: '${e.floorTopTexture}'`);
     if (e.textureRepeat) fields.push(`textureRepeat: [${e.textureRepeat[0]}, ${e.textureRepeat[1]}]`);
-    if (e.preferIconInPicker) fields.push(`preferIconInPicker: true`);
     if (e.opacity !== undefined) fields.push(`opacity: ${e.opacity}`);
     return `  { ${fields.join(', ')} },`;
   });
@@ -300,11 +295,6 @@ export interface BlockType {
   // — not guessed — so this is only present where confirmed; every material
   // without it renders at the original (pre-fix) 1:1 scale, unchanged.
   textureRepeat?: [number, number];
-  // When true, the block picker prefers the inventory icon over the surface
-  // texture for its preview swatch — for blocks whose extracted texture is a
-  // good tileable 3D surface but a poor standalone picture (e.g. Pipes: a
-  // plain metal swatch, vs. a clean IronPipeItem-style icon).
-  preferIconInPicker?: boolean;
   opacity?: number; // 0-1; 3D-only, e.g. for glass. Defaults to fully opaque (1) when omitted.
 }
 

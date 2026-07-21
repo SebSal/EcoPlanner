@@ -1,16 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { getBlockIcon, getBlockTexture, type BlockType } from '../../data/blockPalette';
+import { getBlockIcon, type BlockType } from '../../data/blockPalette';
 import { getPaletteItems, type PaletteItem } from '../../data/blockGroups';
 import { useBuildStore } from '../../state/useBuildStore';
 
-// Preview a block with its actual surface texture, falling back to the inventory
-// icon (e.g. untextured glass) and, under that, the flat color on the swatch.
-// `preferIconInPicker` flips that order for blocks whose extracted texture is
-// a good tileable 3D surface but a poor standalone picture (e.g. Pipes).
+// Preview a block with its real in-game inventory icon (falling back to the
+// flat color on the swatch if the icon somehow failed to load).
 function BlockPreview({ block }: { block: BlockType }) {
   const icon = getBlockIcon(block.id); // always defined
-  const src = block.preferIconInPicker ? icon : (getBlockTexture(block.id) ?? icon);
-  return <img src={src} alt="" draggable={false} />;
+  return <img src={icon} alt="" draggable={false} />;
 }
 
 function Swatch({
