@@ -5,6 +5,7 @@ import { CLAIM_SIZE } from '../../lib/voxelGrid';
 import { VoxelInstancedMesh } from './VoxelInstancedMesh';
 import { PipeInstancedMesh } from './PipeInstancedMesh';
 import { WallInstancedMesh } from './WallInstancedMesh';
+import { ColumnInstancedMesh } from './ColumnInstancedMesh';
 
 export function Scene() {
   const dimensions = useBuildStore((s) => s.project.dimensions);
@@ -31,6 +32,7 @@ export function Scene() {
       <VoxelInstancedMesh />
       <PipeInstancedMesh />
       <WallInstancedMesh />
+      <ColumnInstancedMesh />
       <OrbitControls makeDefault />
     </Canvas>
   );
