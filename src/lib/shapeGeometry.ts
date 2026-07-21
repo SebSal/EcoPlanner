@@ -131,3 +131,41 @@ export function useShapeGeometry(meshId: string | undefined): THREE.BufferGeomet
 
   return geometry;
 }
+
+// Batch variant of useShapeGeometry for a fixed set of mesh ids (e.g. a pipe
+// metal's full junction-mesh set). `meshIds` must be stable in length across
+// renders. Returns a parallel array of geometries, each null until it resolves.
+export function useShapeGeometries(meshIds: string[]): (THREE.BufferGeometry | null)[] {
+  const [geometries, setGeometries] = useState<(THREE.BufferGeometry | null)[]>(() =>
+    meshIds.map((id) => geometryCache.get(id) ?? null),
+  );
+
+  const key = meshIds.join('|');
+  useEffect(() => {
+    let cancelled = false;
+    setGeometries(meshIds.map((id) => geometryCache.get(id) ?? null));
+    meshIds.forEach((id, i) => {
+      if (geometryCache.get(id)) return;
+      loadShapeGeometry(id)
+        .then((geom) => {
+          if (cancelled) return;
+          setGeometries((prev) => {
+            if (prev[i] === geom) return prev;
+            const next = prev.slice();
+            next[i] = geom;
+            return next;
+          });
+        })
+        .catch((err) => {
+          console.error(`Failed to load shape geometry "${id}":`, err);
+        });
+    });
+    return () => {
+      cancelled = true;
+    };
+    // key captures the meshIds contents; loading is keyed off cache otherwise.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
+  return geometries;
+}
