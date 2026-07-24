@@ -4,6 +4,7 @@ import { Toolbar } from '../toolbar/Toolbar';
 import { NewProjectDialog } from '../toolbar/NewProjectDialog';
 import { LayerEditor } from '../editor2d/LayerEditor';
 import { LayerSelector } from '../editor2d/LayerSelector';
+import { GridControls } from '../editor2d/GridControls';
 import { Scene } from '../viewer3d/Scene';
 import { BlockCounter } from './BlockCounter';
 import { CopyrightNotice } from './CopyrightNotice';
@@ -35,6 +36,7 @@ export function AppShell() {
       <div className="app-panes">
         <div className="pane pane-2d">
           <LayerSelector />
+          <GridControls />
           <LayerEditor />
         </div>
         <div className="pane pane-3d">

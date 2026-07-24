@@ -5,6 +5,7 @@ import type { ProjectFileV2 } from '../types/project';
 import { BLOCK_PALETTE } from '../data/blockPalette';
 import { getAvailableShapes, type ShapeId } from '../data/blockShapes';
 import {
+  CLAIM_SIZE,
   createEmptyGrid,
   getCell,
   gridFromSparseBlocks,
@@ -38,6 +39,8 @@ interface BuildState {
   setLayer(y: number): void;
   goUpLayer(): void;
   copyLayer(direction: 'up' | 'down'): void;
+  extendAxis(axis: 'width' | 'depth'): void;
+  moveBlocks(axis: 'width' | 'height' | 'depth', delta: 1 | -1): void;
   setSelectedBlock(id: BlockTypeId): void;
   setSelectedShape(shape: ShapeId): void;
   rotateSelection(): void;
@@ -52,6 +55,9 @@ interface BuildState {
 
 const DEFAULT_DIMENSIONS: VoxelDimensions = { width: 8, height: 8, depth: 8 };
 const MAX_HEIGHT = 64;
+// Ground cap mirrors the New Project dialog's 40-claim limit (40 × 5 = 200
+// blocks per axis) so growing an axis can't build a runaway grid either.
+const MAX_GROUND = 40 * CLAIM_SIZE;
 
 function emptyProject(dimensions: VoxelDimensions, name: string) {
   const now = new Date().toISOString();
@@ -172,6 +178,58 @@ export const useBuildStore = create<BuildState>()(
           }
         }
         state.ui.currentLayerY = to;
+      });
+    },
+
+    // Grow one of the two ground axes (X = width, Z = depth) by a full claim.
+    // resizeGrid keeps existing blocks in place and fills the new space (on the
+    // positive side) with empty cells.
+    extendAxis(axis) {
+      set((state) => {
+        const dims = state.project.dimensions;
+        const current = dims[axis];
+        if (current + CLAIM_SIZE > MAX_GROUND) return;
+        const newDims = { ...dims, [axis]: current + CLAIM_SIZE };
+        state.project.grid = resizeGrid(state.project.grid, newDims);
+        state.project.dimensions = newDims;
+      });
+    },
+
+    // Shift every placed block by one cell along an axis. The whole move is
+    // rejected (no-op) if any block would leave the grid, so blocks are never
+    // clipped and never pushed to a negative coordinate.
+    moveBlocks(axis, delta) {
+      set((state) => {
+        const grid = state.project.grid;
+        const { width, height, depth } = grid.dimensions;
+        const dx = axis === 'width' ? delta : 0;
+        const dy = axis === 'height' ? delta : 0;
+        const dz = axis === 'depth' ? delta : 0;
+
+        for (let y = 0; y < height; y++) {
+          for (let z = 0; z < depth; z++) {
+            for (let x = 0; x < width; x++) {
+              if (!getCell(grid, x, y, z)) continue;
+              const nx = x + dx;
+              const ny = y + dy;
+              const nz = z + dz;
+              if (nx < 0 || nx >= width || ny < 0 || ny >= height || nz < 0 || nz >= depth) {
+                return; // move would push a block out of bounds — cancel entirely
+              }
+            }
+          }
+        }
+
+        const next = createEmptyGrid(grid.dimensions);
+        for (let y = 0; y < height; y++) {
+          for (let z = 0; z < depth; z++) {
+            for (let x = 0; x < width; x++) {
+              const cell = getCell(grid, x, y, z);
+              if (cell) setCell(next, x + dx, y + dy, z + dz, { ...cell });
+            }
+          }
+        }
+        state.project.grid = next;
       });
     },
 
