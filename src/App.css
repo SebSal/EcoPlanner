@@ -275,6 +275,56 @@
   font-size: 13px;
 }
 
+.grid-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.grid-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grid-controls-title {
+  font-size: 13px;
+  color: var(--text-muted, #9aa0ac);
+}
+
+.grid-controls button {
+  background: #2c2d37;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.grid-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.grid-controls-move-axis {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.grid-controls-move-axis button {
+  padding: 4px 8px;
+  min-width: 26px;
+}
+
+.grid-controls-axis-label {
+  min-width: 12px;
+  text-align: center;
+  font-size: 13px;
+}
+
 .layer-editor {
   /* Clipping viewport for the pan/zoom canvas inside it. */
   position: relative;
