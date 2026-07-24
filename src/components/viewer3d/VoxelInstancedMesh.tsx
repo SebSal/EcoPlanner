@@ -11,6 +11,7 @@ import {
 } from '../../data/blockPalette';
 import { getBlockFamily, getShapeMeshId, type ShapeId } from '../../data/blockShapes';
 import { hasFloorConnectivity } from '../../data/floorConnectivity';
+import { hasFenceConnectivity } from '../../data/fenceConnectivity';
 import { useShapeGeometry } from '../../lib/shapeGeometry';
 import { loadBlockTexture } from '../../lib/blockTexture';
 import { makeTriplanarMaterial } from '../../lib/triplanarMaterial';
@@ -188,6 +189,10 @@ export function VoxelInstancedMesh() {
       // are extracted (FloorInstancedMesh handles those); other families' floors
       // still render as the box below.
       if (cell.shape === 'floor' && hasFloorConnectivity(getBlockFamily(cell.blockTypeId))) continue;
+      // Fences are neighbor-aware too, but only for families/shapes whose
+      // junction meshes are extracted (FenceInstancedMesh handles those);
+      // other fence-like shapes still render as the static mesh below.
+      if (hasFenceConnectivity(getBlockFamily(cell.blockTypeId), cell.shape)) continue;
       const { x, y, z } = coordsFromIndex(i, dimensions);
       const position = {
         x: x - dimensions.width / 2 + 0.5,
