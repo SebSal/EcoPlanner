@@ -12,6 +12,7 @@ import {
 import { getShapeMeshId, type ShapeId } from '../../data/blockShapes';
 import { useShapeGeometry } from '../../lib/shapeGeometry';
 import { loadBlockTexture } from '../../lib/blockTexture';
+import { makeTriplanarMaterial } from '../../lib/triplanarMaterial';
 
 interface Placement {
   x: number;
@@ -38,14 +39,26 @@ function InstancedGroup({
   const color = getBlockColor(blockTypeId);
   const texturePath = getBlockTexture(blockTypeId);
   const opacity = getBlockOpacity(blockTypeId);
-  // Only box-rendered faces (Cube, Floor's sides) need the verified repeat
-  // scale — real extracted meshes (Stairs, Wall, ...) already bake their own
-  // correct scale into their UVs, so applying it there would double it up.
+  // Box-rendered faces (Cube, Floor's sides) apply the verified repeat scale to
+  // the texture's own UVs. Extracted meshes instead sample the texture at (1,1)
+  // and are scaled by the triplanar material below (their baked UVs are
+  // collapsed/degenerate — see makeTriplanarMaterial), so their texture stays at
+  // the default repeat.
   const isBoxShape = shape === 'cube' || shape === 'floor';
-  const textureRepeat = isBoxShape ? getBlockTextureRepeat(blockTypeId) : ([1, 1] as [number, number]);
+  const repeatScale = getBlockTextureRepeat(blockTypeId);
+  const textureRepeat = isBoxShape ? repeatScale : ([1, 1] as [number, number]);
   const map = useMemo(
     () => (texturePath ? loadBlockTexture(texturePath, textureRepeat) : null),
     [texturePath, textureRepeat[0], textureRepeat[1]],
+  );
+
+  // Extracted (non-box) meshes render with a world-space triplanar material that
+  // ignores their unusable baked UVs, painting the texture by world position at
+  // the same brick scale as this block's Cube. Box shapes keep their UV-repeat
+  // material below.
+  const triplanarMaterial = useMemo(
+    () => (!isBoxShape && map ? makeTriplanarMaterial({ map, scale: repeatScale, opacity }) : null),
+    [isBoxShape, map, repeatScale[0], repeatScale[1], opacity],
   );
 
   // Only 'floor' ever needs a distinct top/bottom texture — verified per
@@ -86,9 +99,9 @@ function InstancedGroup({
   // only happens once per mesh id — cached after that.
   if (!isBoxShape && !stairsGeometry) return null;
 
-  // Window grilles carry a glass pane split into a second material group (see
-  // shapeGeometry.ts): frame → material-0 (family texture), pane → material-1
-  // (transparent glass).
+  // Windows (plain and grilles) carry a glass pane split into a second material
+  // group (see shapeGeometry.ts): frame → material-0 (family texture), pane →
+  // material-1 (transparent glass).
   const hasGlassPane = stairsGeometry?.userData.hasGlassPane === true;
 
   // When a texture is present, leave the material color white so the texture
@@ -134,7 +147,11 @@ function InstancedGroup({
       ) : (
         <primitive object={stairsGeometry!} attach="geometry" />
       )}
-      {frameMaterial}
+      {triplanarMaterial ? (
+        <primitive object={triplanarMaterial} attach={hasGlassPane ? 'material-0' : 'material'} />
+      ) : (
+        frameMaterial
+      )}
       {hasGlassPane && (
         // DoubleSide so the thin pane is visible from both faces through the
         // openwork frame.
