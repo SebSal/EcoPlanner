@@ -7,6 +7,7 @@ import { PipeInstancedMesh } from './PipeInstancedMesh';
 import { WallInstancedMesh } from './WallInstancedMesh';
 import { ColumnInstancedMesh } from './ColumnInstancedMesh';
 import { FloorInstancedMesh } from './FloorInstancedMesh';
+import { FenceInstancedMesh } from './FenceInstancedMesh';
 
 export function Scene() {
   const dimensions = useBuildStore((s) => s.project.dimensions);
@@ -35,6 +36,7 @@ export function Scene() {
       <WallInstancedMesh />
       <ColumnInstancedMesh />
       <FloorInstancedMesh />
+      <FenceInstancedMesh />
       <OrbitControls makeDefault />
     </Canvas>
   );
