@@ -35,10 +35,11 @@ function mergeSubs(geometries: THREE.BufferGeometry[]): THREE.BufferGeometry {
   return merged;
 }
 
-// A window grille's glass pane is a small, near-planar quad set inside the
-// opening — few faces and a bounding box that stays well within the block's
-// ±0.5 edges (the openwork frame reaches them). Detecting it lets us render the
-// pane as transparent glass instead of the opaque family texture.
+// A window's glass pane is a small, near-planar quad set inside the opening —
+// few faces and a bounding box that stays well within the block's ±0.5 edges
+// (the frame reaches them). Detecting it lets us render the pane as transparent
+// glass instead of the opaque family texture. Every window mesh (plain Window,
+// WindowEdge, WindowGrilles, WindowGrillesEdge) carries such a pane.
 function isGlassPane(geometry: THREE.BufferGeometry): boolean {
   const position = geometry.getAttribute('position');
   const faceCount = (geometry.index ? geometry.index.count : position.count) / 3;
@@ -57,16 +58,16 @@ function isGlassPane(geometry: THREE.BufferGeometry): boolean {
 }
 
 function buildGeometry(meshId: string, subs: THREE.BufferGeometry[]): THREE.BufferGeometry {
-  // Window grilles: split the glass pane out into its own material group (index
-  // 1) so the renderer can paint it with a transparent glass material while the
-  // frame (index 0) keeps the opaque family texture.
-  if (meshId.includes('windowgrilles')) {
+  // Windows (plain and grilles): split the glass pane out into its own material
+  // group (index 1) so the renderer can paint it with a transparent glass
+  // material while the frame (index 0) keeps the opaque family texture.
+  if (meshId.includes('window')) {
     const paneGeoms = subs.filter(isGlassPane);
     const frameGeoms = subs.filter((g) => !isGlassPane(g));
     if (paneGeoms.length > 0 && frameGeoms.length > 0) {
       const merged = mergeBufferGeometries([mergeSubs(frameGeoms), mergeSubs(paneGeoms)], true);
       if (!merged) {
-        throw new Error('Failed to merge grille geometry groups.');
+        throw new Error('Failed to merge window geometry groups.');
       }
       merged.userData.hasGlassPane = true;
       return merged;
