@@ -9,7 +9,8 @@ import {
   getBlockTexture,
   getBlockTextureRepeat,
 } from '../../data/blockPalette';
-import { getShapeMeshId, type ShapeId } from '../../data/blockShapes';
+import { getBlockFamily, getShapeMeshId, type ShapeId } from '../../data/blockShapes';
+import { hasFloorConnectivity } from '../../data/floorConnectivity';
 import { useShapeGeometry } from '../../lib/shapeGeometry';
 import { loadBlockTexture } from '../../lib/blockTexture';
 import { makeTriplanarMaterial } from '../../lib/triplanarMaterial';
@@ -183,6 +184,10 @@ export function VoxelInstancedMesh() {
       // (Wall/ColumnInstancedMesh), pipes by PipeInstancedMesh — skip them here
       // so they aren't double-drawn.
       if (cell.shape === 'wall' || cell.shape === 'column' || cell.shape === 'pipe') continue;
+      // Floors are neighbor-aware too, but only for families whose floor meshes
+      // are extracted (FloorInstancedMesh handles those); other families' floors
+      // still render as the box below.
+      if (cell.shape === 'floor' && hasFloorConnectivity(getBlockFamily(cell.blockTypeId))) continue;
       const { x, y, z } = coordsFromIndex(i, dimensions);
       const position = {
         x: x - dimensions.width / 2 + 0.5,

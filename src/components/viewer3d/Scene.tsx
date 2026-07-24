@@ -6,6 +6,7 @@ import { VoxelInstancedMesh } from './VoxelInstancedMesh';
 import { PipeInstancedMesh } from './PipeInstancedMesh';
 import { WallInstancedMesh } from './WallInstancedMesh';
 import { ColumnInstancedMesh } from './ColumnInstancedMesh';
+import { FloorInstancedMesh } from './FloorInstancedMesh';
 
 export function Scene() {
   const dimensions = useBuildStore((s) => s.project.dimensions);
@@ -33,6 +34,7 @@ export function Scene() {
       <PipeInstancedMesh />
       <WallInstancedMesh />
       <ColumnInstancedMesh />
+      <FloorInstancedMesh />
       <OrbitControls makeDefault />
     </Canvas>
   );
