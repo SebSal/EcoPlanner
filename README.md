@@ -90,11 +90,13 @@ src/
 ## Designs
 
 [`designs/`](designs/) holds ready-made builds in the planner's project format —
-download one and open it with the **Import** button. Currently:
+download one and open it with the **Import** button. Currently three bridges,
+all 30 claims long with the same 8-lane asphalt roadway between two stone road
+edges on layer 11, differing in what carries the deck:
 
-- **`bridge-30-claims.json`** — a three-span steel through-arch bridge on stone
-  piers, 30 claims long, with an 8-lane asphalt roadway between two stone road
-  edges on layer 11.
+- **`bridge-30-claims-arch.json`** — three steel through-arches on stone piers.
+- **`bridge-30-claims-truss.json`** — a continuous Warren through-truss.
+- **`bridge-30-claims-cable-stayed.json`** — twin steel pylons with fanned stays.
 
 ## Deployment
 
