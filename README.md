@@ -87,6 +87,17 @@ src/
 └── types/            # shared TypeScript types
 ```
 
+## Designs
+
+[`designs/`](designs/) holds ready-made builds in the planner's project format —
+download one and open it with the **Import** button. Currently:
+
+- **`bridge-30-claims.json`** — a modern concrete girder bridge, 30 claims long,
+  with an 8-lane asphalt roadway between two stone road edges on layer 11.
+
+Each is produced by a generator script in [`scripts/`](scripts/), so the design
+can be tweaked and regenerated rather than edited block by block.
+
 ## Deployment
 
 The repo includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that
