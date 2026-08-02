@@ -10,6 +10,57 @@ autosave), so export your own work first if you want to keep it.
 
 ---
 
+## `colosseum.json` — the Roman Colosseum
+
+An elliptical amphitheatre, **139 × 117 blocks** (29 × 25 claims) and 30 layers
+tall, in 50,377 blocks — mostly Ashlar Sandstone, with Ashlar Limestone for the
+cornices and walkways and Brick for the Roman substructure.
+
+### The facade
+
+64 arcade bays in three storeys, then an attic. Every bay is a 3-block pier
+carrying a 3-block arched opening: **Understairs** blocks springing off both
+piers give the arch its stepped soffit, an Ashlar Limestone **keystone** sits in
+the crown course, and a **Column** stack runs up the pier as an engaged
+half-column — one per bay per storey, each growing its own base and capital from
+the neighbour-aware mesh. Limestone string courses band the facade at layers 8,
+15 and 22, and the attic carries a **Window** block in every other bay under a
+crowning cornice at layer 30.
+
+### Inside
+
+| Ring | What's there |
+| --- | --- |
+| Facade | 2 blocks thick, layers 1–30 |
+| Ambulatory | 6 blocks wide, with Brick vault decks at layers 8 and 15 |
+| Inner arcade wall | Arched at the lower two storeys, carrying the top of the seating |
+| Cavea | 27 rows of seating stepping from layer 25 down to layer 8 |
+| Arena | 67 × 45 blocks |
+
+The cavea is banded in limestone every seventh row for the praecinctiones — the
+walkways dividing the tiers — and cut by radial vomitoria aisles every eighth
+bay, which is what gives the bowl its spoked look from above.
+
+The arena is sanded (Dirt Road) over half its area; the other half is left open
+to show the **hypogeum**, the Brick grid of service corridors under the floor,
+exactly as the ruin stands today. A limestone podium wall separates it from the
+first row of seats.
+
+| Block | Count |
+| --- | --- |
+| Ashlar Sandstone | 28,600 |
+| Ashlar Limestone | 10,902 |
+| Brick | 10,015 |
+| Dirt Road | 860 |
+| **Total** | **50,377** |
+
+> **Heads up:** at ~4.1 MB this project is close to the browser's ~5 MB
+> `localStorage` ceiling. It imports and autosaves fine, but there isn't room to
+> add a great deal more before autosave starts failing — export to a file if you
+> extend it.
+
+---
+
 ## The bridges
 
 Three takes on the same brief — **30 claims (150 blocks) long, 12 blocks wide**,

@@ -90,13 +90,16 @@ src/
 ## Designs
 
 [`designs/`](designs/) holds ready-made builds in the planner's project format —
-download one and open it with the **Import** button. Currently three bridges,
-all 30 claims long with the same 8-lane asphalt roadway between two stone road
-edges on layer 11, differing in what carries the deck:
+download one and open it with the **Import** button. Currently:
 
-- **`bridge-30-claims-arch.json`** — three steel through-arches on stone piers.
-- **`bridge-30-claims-truss.json`** — a continuous Warren through-truss.
-- **`bridge-30-claims-cable-stayed.json`** — twin steel pylons with fanned stays.
+- **`colosseum.json`** — the Roman Colosseum: a 139 × 117 elliptical amphitheatre
+  with a 64-bay arcaded facade, tiered cavea and exposed hypogeum, in ashlar
+  sandstone.
+- **Three bridges**, all 30 claims long with the same 8-lane asphalt roadway
+  between two stone road edges on layer 11, differing in what carries the deck —
+  `bridge-30-claims-arch.json` (steel through-arches on stone piers),
+  `bridge-30-claims-truss.json` (a Warren through-truss) and
+  `bridge-30-claims-cable-stayed.json` (twin steel pylons with fanned stays).
 
 ## Deployment
 
