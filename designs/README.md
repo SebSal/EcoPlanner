@@ -10,54 +10,71 @@ autosave), so export your own work first if you want to keep it.
 
 ---
 
-## `colosseum.json` — the Roman Colosseum
+## The Colosseum
 
-An elliptical amphitheatre, **139 × 117 blocks** (29 × 25 claims) and 30 layers
-tall, in 50,377 blocks — mostly Ashlar Sandstone, with Ashlar Limestone for the
-cornices and walkways and Brick for the Roman substructure.
+At **1 block = 1 metre**, the real building is 189 × 156 m on plan, 48 m tall,
+with an 87 × 55 m arena and 80 arches per storey on ~6.8 m bays. Both files below
+are built from those numbers; they differ only in scale.
+
+| | Plan | Height | Arena | Arches | Blocks | Autosave |
+| --- | --- | --- | --- | --- | --- | --- |
+| Real building | 189 × 156 m | 48 m | 87 × 55 m | 80 | — | — |
+| [`colosseum-1to1.json`](colosseum-1to1.json) | 189 × 156 | 48 | 87 × 54 | 80 | 127,614 | ✗ **exceeds the browser limit** |
+| [`colosseum.json`](colosseum.json) | 117 × 97 | 30 | 53 × 33 | 50 | 48,043 | ✓ 80% of the limit |
+
+**Which to use.** `colosseum-1to1.json` is the building at true scale — every
+dimension matches, and the 6.8 m bay gives the full 80 arches. It imports and
+renders, but at 10.6 M characters it is **2.15× the browser's ~4.94 M
+`localStorage` ceiling**, so autosave fails outright: nothing is stored, and
+refreshing the page loses it. It also takes ~25 s to import. Treat it as a
+reference model, and re-import it each session.
+
+`colosseum.json` is the same building at 62% — 117 × 97 × 30 m. The proportions
+are exact (1.21 plan ratio, 0.26 height-to-length, same as the original) and the
+bays are still a true 6.8 m, so piers and openings keep their built proportions;
+there are simply 50 arches around a shorter perimeter instead of 80. This is the
+one to actually work with.
 
 ### The facade
 
-64 arcade bays in three storeys, then an attic. Every bay is a 3-block pier
-carrying a 3-block arched opening: **Understairs** blocks springing off both
-piers give the arch its stepped soffit, an Ashlar Limestone **keystone** sits in
-the crown course, and a **Column** stack runs up the pier as an engaged
-half-column — one per bay per storey, each growing its own base and capital from
-the neighbour-aware mesh. Limestone string courses band the facade at layers 8,
-15 and 22, and the attic carries a **Window** block in every other bay under a
-crowning cornice at layer 30.
+Each bay is a ~2.6 m pier carrying a ~4.2 m arched opening, as built. The arch
+head is **Understairs** blocks springing off both piers for the stepped soffit,
+with an Ashlar Limestone **keystone** in the crown course. A **Column** stack
+runs up every pier as an engaged half-column — one per bay per storey, growing
+its own base and capital from the neighbour-aware mesh — and an **Underbrace**
+corbel carries the cornice above each one. Limestone string courses close each
+storey, and the attic alternates **Window** and **Double Window** blocks under a
+crowning cornice.
+
+The facade is full depth on the piers and thinner across the spandrels, which is
+both how it was built and a large saving in blocks.
 
 ### Inside
 
 | Ring | What's there |
 | --- | --- |
-| Facade | 2 blocks thick, layers 1–30 |
-| Ambulatory | 6 blocks wide, with Brick vault decks at layers 8 and 15 |
+| Facade | 3 m deep on the piers |
+| Ambulatory | 8 m wide, with Brick vault decks at the first two storey levels |
 | Inner arcade wall | Arched at the lower two storeys, carrying the top of the seating |
-| Cavea | 27 rows of seating stepping from layer 25 down to layer 8 |
-| Arena | 67 × 45 blocks |
+| Cavea | Seating from the podium up to just above the third cornice |
+| Arena | Sanded over half; the other half open over the hypogeum |
 
-The cavea is banded in limestone every seventh row for the praecinctiones — the
-walkways dividing the tiers — and cut by radial vomitoria aisles every eighth
-bay, which is what gives the bowl its spoked look from above.
+The cavea is one seat row per metre, laid in **Stairs** blocks stepping down
+toward the arena, with flat Ashlar Limestone praecinctiones every few rows and
+radial vomitoria aisles every eighth bay. A limestone podium wall rings the
+arena, topped with a **Fence** balustrade. Beneath the arena floor is the Brick
+hypogeum, left exposed on one half as the ruin stands today.
 
-The arena is sanded (Dirt Road) over half its area; the other half is left open
-to show the **hypogeum**, the Brick grid of service corridors under the floor,
-exactly as the ruin stands today. A limestone podium wall separates it from the
-first row of seats.
+### Shapes
 
-| Block | Count |
-| --- | --- |
-| Ashlar Sandstone | 28,600 |
-| Ashlar Limestone | 10,902 |
-| Brick | 10,015 |
-| Dirt Road | 860 |
-| **Total** | **50,377** |
-
-> **Heads up:** at ~4.1 MB this project is close to the browser's ~5 MB
-> `localStorage` ceiling. It imports and autosaves fine, but there isn't room to
-> add a great deal more before autosave starts failing — export to a file if you
-> extend it.
+Ashlar's full catalogue was checked against the meshes in `public/meshes` rather
+than assumed. In use: **Cube, Column, Understairs, Underbrace, Stairs, Fence,
+Window, Double Window**. Deliberately unused: `flatroof`, `floor` and `fullwall`
+extract as plain boxes in this family, so they render identically to Cube;
+`brace` / `sidebrace` are the same bracket as `underbrace`; the slope and peak
+families (`halfslope*`, `basicslope*`, `underslope*`, `peakset`) are pitched-roof
+geometry with nothing to do at an arcade; `wall` is a half-depth panel, which
+would undercut piers that need full depth.
 
 ---
 

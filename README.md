@@ -92,9 +92,11 @@ src/
 [`designs/`](designs/) holds ready-made builds in the planner's project format —
 download one and open it with the **Import** button. Currently:
 
-- **`colosseum.json`** — the Roman Colosseum: a 139 × 117 elliptical amphitheatre
-  with a 64-bay arcaded facade, tiered cavea and exposed hypogeum, in ashlar
-  sandstone.
+- **`colosseum.json`** — the Roman Colosseum in ashlar sandstone, at 62% scale
+  (117 × 97 × 30 m) with true 6.8 m arcade bays, a tiered cavea and an exposed
+  hypogeum. **`colosseum-1to1.json`** is the same building at full 189 × 156 ×
+  48 m with all 80 arches — dimensionally exact, but too large for the browser's
+  autosave (see [designs/README.md](designs/README.md)).
 - **Three bridges**, all 30 claims long with the same 8-lane asphalt roadway
   between two stone road edges on layer 11, differing in what carries the deck —
   `bridge-30-claims-arch.json` (steel through-arches on stone piers),
